@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "front-signia",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "front/signia", "run", "dev"],
+      "port": 5173
+    }
+  ]
+}
