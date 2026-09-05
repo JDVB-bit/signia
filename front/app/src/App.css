@@ -1,0 +1,40 @@
+/* Efecto de aparicion "polvo": desenfoque + opacidad + ligero desplazamiento
+   que se va asentando, como si el texto se materializara. */
+@keyframes dust-in {
+    0% {
+        opacity: 0;
+        filter: blur(14px);
+        transform: translateY(14px) scale(1.06);
+    }
+    60% {
+        opacity: 1;
+        filter: blur(3px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-dust-in {
+    animation: dust-in 1500ms ease-out both;
+}
+
+/* Aparicion de la tarjeta de la burbuja de informacion: desciende desde
+   arriba con una curva suave, sin pasar de medio segundo, para que se
+   sienta fluida y no brusca. */
+@keyframes modal-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-32px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-modal-drop-in {
+    animation: modal-drop-in 2000ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}

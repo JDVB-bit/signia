@@ -1,0 +1,30 @@
+@import "tailwindcss";
+/* Excluir los assets de MediaPipe self-hosted: son JS glue-code de Emscripten,
+   no código de la app, y Tailwind los escaneaba generando clases falsas. */
+@source not "../public/mediapipe";
+
+/* Activa el prefijo dark: en base a la clase .dark en <html>,
+   en lugar de depender de prefers-color-scheme del sistema. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Paleta principal (modo claro).
+   brand     -> palabra "Signia", titulos, elementos a resaltar
+   bg        -> fondo principal de la pagina
+   surface   -> secciones, por encima del fondo principal
+   secondary -> botones, elementos secundarios */
+@theme {
+  --color-brand: #E68825;
+  --color-bg: #F5EBD0;
+  --color-surface: #F5E4C6;
+  --color-secondary: #C0CAD1;
+}
+
+/* Paleta oscura: cada color se calculo pasando a HSL, girando el matiz
+   +180 grados (color complementario en el circulo cromatico) e invirtiendo
+   la luminosidad (100 - L), manteniendo la saturacion original. */
+.dark {
+  --color-brand: #666F91;
+  --color-bg: #293447;
+  --color-surface: #354459;
+  --color-secondary: #D4C5AB;
+}
