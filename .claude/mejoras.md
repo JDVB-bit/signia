@@ -87,7 +87,19 @@
 ## Hecho (sesión 17) — bug de color en la intro
 - [x] `IntroSplash.css`: el fondo del overlay usaba `--color-brand`; se cambió a `--color-bg` (el fondo real del sitio). El título usa `--color-brand` desde el inicio (ya no blanco + crossfade), y la barra de carga pasó de blanco fijo a `--color-brand`/`--color-secondary` — todo coherente con la paleta activa. Verificado en claro y oscuro con estilos computados.
 
+## Hecho (sesión 18)
+- [x] `.claude/` agregado al tracking de git y commiteado (`760de5d`): `claude.md`, `mejoras.md`, `launch.json` actualizado.
+- [x] `Header.jsx` — header común extraído (título+lema, tema, burger menu), usado ahora en `App.jsx` y en las páginas nuevas, para que sea idéntico en todo el sitio en vez de copiado.
+- [x] `pages/Traduccion.jsx` y `pages/Entrenamiento.jsx` — estructura básica (header + fondo `bg-bg`) con su título de sección; contenido específico de cada una queda pendiente.
+- [x] `BurgerMenu`: agregado el enlace a "Entrenamiento" junto a Inicio y Traductor.
+- Todo esto en el commit `ddc4484`.
+
+## Hecho (sesión 19)
+- [x] Instalado `react-router-dom` y conectadas las 3 páginas de verdad: `BrowserRouter` en `main.jsx`, `Routes`/`Route` en `AppRoot.jsx` (`/`, `/traduccion`, `/entrenamiento`), y `BurgerMenu` usando `<Link>` en vez de `<a>` planos. Verificado navegando por el menú y recargando directo en `/traduccion` (fallback SPA de Vite).
+- [x] Confirmado (por historial de git) que no se tocó la paleta de colores en ningún commit propio; solo se corrigió a qué variable apuntaba la intro.
+
 ## Pendiente / próximos pasos
+- [ ] Definir el contenido real de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (modulo de practica).
 - [ ] Si más adelante se agregan assets reales de manos/señas, reemplazar los emojis de `IntroSplash.jsx` (`SENAS`) por esos assets.
 - [ ] Revisar la intro en pantallas muy angostas (el docking usa `left: 1.5rem` / `sm:2.5rem`, igual que el header real, pero vale la pena confirmarlo en dispositivo).
 - [ ] Snt sigue con los "Verificar" pendientes de `.informacion-homepage.md` para afinar el contenido si hace falta (aunque ya está aplicado).

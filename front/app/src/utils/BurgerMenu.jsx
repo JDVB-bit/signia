@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const DEFAULT_LINKS = [
     { label: 'Inicio', href: '/' },
@@ -66,14 +67,14 @@ export default function BurgerMenu({ links = DEFAULT_LINKS }) {
                         <ul className="flex flex-col py-2">
                             {links.map((link, index) => (
                                 <li key={link.href}>
-                                    <a
+                                    <Link
                                         ref={index === 0 ? firstLinkRef : null}
-                                        href={link.href}
+                                        to={link.href}
                                         onClick={() => setOpen(false)}
                                         className="block px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-secondary/40"
                                     >
                                         {link.label}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

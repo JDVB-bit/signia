@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import App from './App'
+import Traduccion from './pages/Traduccion'
+import Entrenamiento from './pages/Entrenamiento'
 import IntroSplash from './utils/IntroSplash'
 
 const INTRO_STORAGE_KEY = 'signia-intro-vista'
@@ -9,8 +12,8 @@ function yaSeVioLaIntro() {
     return localStorage.getItem(INTRO_STORAGE_KEY) === '1'
 }
 
-/** Decide si mostrar la pantalla de carga o la app real. Mientras la
- * intro esta activa, App ni siquiera se monta: asi ninguna otra
+/** Decide si mostrar la pantalla de carga o las rutas reales del sitio.
+ * Mientras la intro esta activa, nada de eso se monta: asi ninguna otra
  * animacion de la pagina corre al mismo tiempo que ella. Se muestra una
  * unica vez: recargar la pagina no la vuelve a disparar. */
 export default function AppRoot() {
@@ -25,5 +28,11 @@ export default function AppRoot() {
         return <IntroSplash onFinish={finalizarIntro} />
     }
 
-    return <App />
+    return (
+        <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/traduccion" element={<Traduccion />} />
+            <Route path="/entrenamiento" element={<Entrenamiento />} />
+        </Routes>
+    )
 }
