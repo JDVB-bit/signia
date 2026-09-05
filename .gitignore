@@ -18,6 +18,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Notas de contenido en borrador (no se versionan)
+.informacion-homepage.md
+
 # Editor / SO
 .vscode/*
 !.vscode/extensions.json
