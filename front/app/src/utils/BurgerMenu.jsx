@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 const DEFAULT_LINKS = [
     { label: 'Inicio', href: '/' },
     { label: 'Traductor', href: '/traduccion' },
+    { label: 'Entrenamiento', href: '/entrenamiento' },
 ]
 
 export default function BurgerMenu({ links = DEFAULT_LINKS }) {

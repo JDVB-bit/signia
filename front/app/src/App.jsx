@@ -1,7 +1,6 @@
 import { Fragment } from "react"
 import "./App.css"
-import ThemeToggle from "./utils/ThemeToggle"
-import BurgerMenu from "./utils/BurgerMenu"
+import Header from "./utils/Header"
 import Typewriter from "./utils/Typewriter"
 import SectionCard from "./utils/SectionCard"
 import InfoBubble from "./utils/InfoBubble"
@@ -23,17 +22,7 @@ export default function App() {
 
     return (
         <div className="min-h-screen bg-bg text-slate-900 transition-colors dark:text-slate-100">
-            <header className="flex items-center justify-between gap-4 bg-surface px-6 py-4 sm:px-10">
-                <section>
-                    {/*Titulo*/}
-                    <h1 className="text-3xl font-bold text-brand">SignIA</h1>
-                    <h3 className="text-sm opacity-80 text-brand">Manos que hablan. Tecnologia que escucha</h3>
-                </section>
-                <section className="flex items-center gap-3">
-                    <ThemeToggle />
-                    <BurgerMenu />
-                </section>
-            </header>
+            <Header />
             <main className="mx-auto max-w-[110rem] space-y-14 px-6 py-14 sm:px-10 lg:px-16">
                 {/*Titulo principal con efecto de aparicion tipo "polvo", palabra a palabra*/}
                 <h2 className="text-center text-4xl font-extrabold tracking-tight text-brand drop-shadow-sm sm:text-5xl lg:text-6xl">
