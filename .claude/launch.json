@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "front-signia",
+      "name": "signia-front",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--dir", "front/signia", "run", "dev"],
+      "runtimeArgs": ["--dir", "front/app", "run", "dev"],
       "port": 5173
     }
   ]
