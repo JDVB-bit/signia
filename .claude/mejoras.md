@@ -110,6 +110,11 @@
 - [x] Guarda en `localStorage` (`signia-camera-permiso`, "concedido"/"denegado") si el usuario ya habia dado el permiso antes; si es asi, en la siguiente visita activa la camara sola en vez de mostrar el boton (el permiso real lo sigue controlando el navegador, esto es solo para no pedirle de nuevo un clic de mas).
 - [x] Integrado en `pages/Entrenamiento.jsx` dentro de una seccion `aspect-video`. Verificado en el navegador: rectangulo con boton "Activar camara"; al hacer clic pasa a estado "denegada" (la vista previa embebida bloquea camara real) y lo guarda en localStorage; forzando `signia-camera-permiso=concedido` en localStorage y recargando, confirma que intenta activar la camara automaticamente sin clic. Sin errores de consola propios del componente.
 
+## Hecho (sesión 23)
+- [x] `CameraFeed.jsx`: cambiado `localStorage` → `sessionStorage` para recordar el permiso de camara. Decidido con Snt tras evaluar el trade-off: `sessionStorage` dura solo mientras la pestaña este abierta (sobrevive recargas y alternar entre paginas en la misma visita, pero se olvida solo al cerrar la pestaña), a diferencia de `localStorage` (para siempre) o una variable de JS en memoria (ni siquiera sobrevive una recarga). Asi se evita mostrar el boton de nuevo al alternar Entrenamiento/Traduccion en una misma visita, sin arrastrar el permiso "recordado" a una visita futura.
+- [x] Verificado en el navegador: con `sessionStorage` vacio se muestra el boton; forzando `signia-camera-permiso=concedido` en `sessionStorage` y navegando a Entrenamiento, intenta activar la camara sola (bloqueado por la vista previa embebida, comportamiento esperado) y actualiza `sessionStorage` a "denegado"; `localStorage` se confirma en `null` en todo momento (ya no se usa). Sin errores de consola propios del componente.
+- [x] Componente `CameraFeed` dado por terminado por ahora, a la espera de las siguientes instrucciones de Snt.
+
 ## Pendiente / próximos pasos
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.
 - [ ] Usar `CameraFeed` tambien en `Traduccion.jsx` cuando se defina su contenido.
