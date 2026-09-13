@@ -158,11 +158,19 @@
 - [x] Label "Nombre seña" y el placeholder del input ahora usan `text-brand`/`placeholder:text-brand` (el color de tipografia principal del tema activo), antes heredaban el color por defecto.
 - [x] Verificado en el navegador en ambos temas (colores y tamaños exactos por `getComputedStyle`/`getBoundingClientRect`). Sin errores de consola. Se respeto el ajuste de color que Snt esta haciendo por su cuenta en `index.css`.
 
+## Hecho (sesión 31) — pagina de Traduccion implementada
+- [x] `Button.jsx` refactorizado: se separaron los estilos de color (`variant`) y de tamaño (`size`, nuevo prop). `size="lg"` es ~10% mas grande que el default (`px-[2.2rem] py-[1.1rem] text-[1.1rem]` vs `px-8 py-4 text-base`) — no afecta a los botones existentes de Entrenamiento, que siguen en `size="default"`.
+- [x] `pages/Traduccion.jsx` implementada con la misma base que `Entrenamiento.jsx`: camara a la izquierda (560×432px, igual que antes) y al lado un bloque partido en 2 mitades EXACTAS con CSS Grid (`grid-rows-2`, 204px cada una): arriba el boton "Traducir" (unico boton, `size="lg"`, empieza a la misma altura que la camara), abajo una caja (`bg-surface`/`text-brand`) que mostrara la traduccion que devuelva el backend (por ahora placeholder "La traduccion aparecera aqui"), terminando a la misma altura que el final de la camara.
+- [x] Nota tecnica: el primer intento de partir el bloque en 2 mitades iguales fue con `flex flex-col` + `flex-1` + `min-h-0`, pero por alguna razon el navegador no las repartia parejo (180px/228px en vez de 204/204 iguales, con las mismas propiedades flex computadas en ambos). Cambiar a CSS Grid (`grid-rows-2`) resolvio el problema y dio el split exacto esperado.
+- [x] Verificado en el navegador en ambos temas: tamaños exactos por `getBoundingClientRect` (camara y bloque de controles ambos 560×432, mitades 204/204), colores correctos por `getComputedStyle`, y confirmado que Entrenamiento sigue exactamente igual (125×56 / 108×56, mismos colores) tras el refactor de `Button.jsx`. Sin errores de consola.
+- [x] Con esto quedan resueltos dos pendientes: "usar CameraFeed en Traduccion" y una parte de "definir el contenido de Traduccion" (la estructura visual; falta la logica real).
+- [x] A pedido de Snt: el boton "Traducir" y la caja de traduccion quedaron agrupados en un `<section>` (antes un `div`), en vez de sueltos directamente en el grid.
+- [x] A esa `<section>` se le agrego el color de las secciones (`bg-surface`, `rounded-2xl`, `p-8` — mismo tratamiento que el panel agrupador de Entrenamiento), para que se vea como un solo bloque agrupado visualmente. Se le saco el `bg-surface` propio a la caja de traduccion (quedaria duplicado/invisible sobre el mismo color del panel). Verificado: 560×432px, misma posicion que la camara, `bg-surface` aplicado correctamente en ambos temas.
+
 ## Pendiente / próximos pasos
-- [ ] Implementar la logica real de `handleEntrenar` (captura de muestras via camara + `handLandmarker.js`) y `handleEnviar` (mandar al backend).
-- [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.
-- [ ] Usar `CameraFeed` tambien en `Traduccion.jsx` cuando se defina su contenido.
-- [ ] Definir el resto del contenido de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (mecanica de practica: que se le pide al usuario y como se valida).
+- [ ] Implementar la logica real de `handleEntrenar`/`handleEnviar` (Entrenamiento) y `handleTraducir` (Traduccion): conectar la captura de muestras y el reconocimiento via `handLandmarker.js` con el backend.
+- [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo, en ambas paginas.
+- [ ] Definir el formato/contrato de la respuesta del backend para pintar la traduccion real en la caja de `Traduccion.jsx` (por ahora es un placeholder de texto).
 - [ ] Si más adelante se agregan assets reales de manos/señas, reemplazar los emojis de `IntroSplash.jsx` (`SENAS`) por esos assets.
 - [ ] Revisar la intro en pantallas muy angostas (el docking usa `left: 1.5rem` / `sm:2.5rem`, igual que el header real, pero vale la pena confirmarlo en dispositivo).
 - [ ] Snt sigue con los "Verificar" pendientes de `.informacion-homepage.md` para afinar el contenido si hace falta (aunque ya está aplicado).
