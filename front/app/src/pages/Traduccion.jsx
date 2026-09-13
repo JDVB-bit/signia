@@ -35,7 +35,7 @@ export default function Traduccion() {
                         </Button>
                     </div>
 
-                    <div className="flex items-center justify-center text-center text-brand color-bg">
+                    <div className="flex items-center justify-center text-center text-brand bg-bg rounded-lg">
                         {traduccion || "La traduccion aparecera aqui"}
                     </div>
                 </section>
