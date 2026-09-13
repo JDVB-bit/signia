@@ -105,8 +105,15 @@
 ## Hecho (sesión 21)
 - [x] `pages/Traduccion.jsx` y `pages/Entrenamiento.jsx` migradas a `PageLayout.jsx` (ya las tres paginas comparten la misma base). Verificado navegando a `/traduccion` y `/entrenamiento` en el navegador: identicas a como estaban antes, sin errores.
 
+## Hecho (sesión 22)
+- [x] `CameraFeed.jsx` — nuevo componente reutilizable en `utils/`: rectangulo que pide `getUserMedia({video:true})` y muestra el video en vivo (espejado por defecto). Estados: inicial (boton "Activar camara"), solicitando, activa, denegada y no-soportada, cada uno con su mensaje.
+- [x] Guarda en `localStorage` (`signia-camera-permiso`, "concedido"/"denegado") si el usuario ya habia dado el permiso antes; si es asi, en la siguiente visita activa la camara sola en vez de mostrar el boton (el permiso real lo sigue controlando el navegador, esto es solo para no pedirle de nuevo un clic de mas).
+- [x] Integrado en `pages/Entrenamiento.jsx` dentro de una seccion `aspect-video`. Verificado en el navegador: rectangulo con boton "Activar camara"; al hacer clic pasa a estado "denegada" (la vista previa embebida bloquea camara real) y lo guarda en localStorage; forzando `signia-camera-permiso=concedido` en localStorage y recargando, confirma que intenta activar la camara automaticamente sin clic. Sin errores de consola propios del componente.
+
 ## Pendiente / próximos pasos
-- [ ] Definir el contenido real de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (modulo de practica).
+- [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.
+- [ ] Usar `CameraFeed` tambien en `Traduccion.jsx` cuando se defina su contenido.
+- [ ] Definir el resto del contenido de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (mecanica de practica: que se le pide al usuario y como se valida).
 - [ ] Si más adelante se agregan assets reales de manos/señas, reemplazar los emojis de `IntroSplash.jsx` (`SENAS`) por esos assets.
 - [ ] Revisar la intro en pantallas muy angostas (el docking usa `left: 1.5rem` / `sm:2.5rem`, igual que el header real, pero vale la pena confirmarlo en dispositivo).
 - [ ] Snt sigue con los "Verificar" pendientes de `.informacion-homepage.md` para afinar el contenido si hace falta (aunque ya está aplicado).
