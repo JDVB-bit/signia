@@ -120,8 +120,13 @@
 - [x] `pages/Entrenamiento.jsx`: nueva seccion de controles del pipeline, debajo de la camara — input controlado con label "Nombre seña", contador de "Muestras tomadas" (state en 0, a la espera del pipeline real de captura), y los botones `Entrenar` (`variant="primary"`) y `Enviar` (`variant="secondary"`) usando el componente `Button` existente. Los handlers (`handleEntrenar`/`handleEnviar`) quedan como TODO, sin logica real todavia.
 - [x] Verificado en el navegador: el input recibe texto, ambos botones son clickeables (via accesibilidad, `ref_5`/`ref_6`), sin errores de consola propios.
 
+## Hecho (sesión 25) — diseño de Entrenamiento
+- [x] `index.css`: agregadas `--color-brand-inverso` y `--color-secondary-inverso`. Cada una vale el `brand`/`secondary` de la paleta CONTRARIA al tema activo (definidas al reves entre `@theme` y `.dark`, mismo mecanismo que el resto de la paleta), para que ciertos elementos resalten siempre con el color "del otro tema" sin importar cual este puesto.
+- [x] `Button.jsx`: variantes `primary` (`bg-brand-inverso`, texto blanco) y `secondary` (`bg-secondary-inverso`, texto oscuro) ya con estilos reales — antes estaban vacias.
+- [x] `pages/Entrenamiento.jsx` rediseñada: camara a la izquierda con ~15-18% de margen respecto al borde del contenido (columna vacia `lg:w-[15%]`) y los controles (nombre de seña, contador, botones) a la derecha, cada bloque a 35% del ancho; en pantallas chicas (`<lg`) se apila todo verticalmente sin el margen. Contador de muestras convertido en una insignia tipo boton (`bg-brand-inverso`, numero grande centrado, `rounded-2xl`).
+- [x] Verificado en el navegador en ambos temas: en claro, contador/Entrenar usan el azul-gris de la paleta oscura y Enviar el beige claro de la paleta oscura; en oscuro se invierte (naranja/gris claro) — confirmado tambien por posiciones/anchos exactos via `getBoundingClientRect` (margen izquierdo ~18.5% del contenido, cada bloque 35%). Sin errores de consola propios.
+
 ## Pendiente / próximos pasos
-- [ ] Definir el diseño/layout visual de la seccion de controles (a pedido explicito de Snt, por ahora quedo sin estilos definitivos).
 - [ ] Implementar la logica real de `handleEntrenar` (captura de muestras via camara + `handLandmarker.js`) y `handleEnviar` (mandar al backend).
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.
 - [ ] Usar `CameraFeed` tambien en `Traduccion.jsx` cuando se defina su contenido.

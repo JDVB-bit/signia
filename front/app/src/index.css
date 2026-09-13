@@ -11,12 +11,20 @@
    brand     -> palabra "Signia", titulos, elementos a resaltar
    bg        -> fondo principal de la pagina
    surface   -> secciones, por encima del fondo principal
-   secondary -> botones, elementos secundarios */
+   secondary -> botones, elementos secundarios
+
+   brand-inverso / secondary-inverso -> el brand/secondary de la OTRA
+   paleta (la oscura, vista desde el modo claro). Sirven para elementos que
+   quieren resaltar usando siempre el color "contrario" al tema activo,
+   sin importar cual este puesto (por eso se redefinen al reves adentro
+   de .dark, mas abajo). */
 @theme {
   --color-brand: #E68825;
   --color-bg: #F5EBD0;
   --color-surface: #F5E4C6;
   --color-secondary: #C0CAD1;
+  --color-brand-inverso: #666F91;
+  --color-secondary-inverso: #D4C5AB;
 }
 
 /* Paleta oscura: cada color se calculo pasando a HSL, girando el matiz
@@ -27,4 +35,6 @@
   --color-bg: #293447;
   --color-surface: #354459;
   --color-secondary: #D4C5AB;
+  --color-brand-inverso: #E68825;
+  --color-secondary-inverso: #C0CAD1;
 }
