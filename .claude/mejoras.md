@@ -98,7 +98,12 @@
 - [x] Instalado `react-router-dom` y conectadas las 3 páginas de verdad: `BrowserRouter` en `main.jsx`, `Routes`/`Route` en `AppRoot.jsx` (`/`, `/traduccion`, `/entrenamiento`), y `BurgerMenu` usando `<Link>` en vez de `<a>` planos. Verificado navegando por el menú y recargando directo en `/traduccion` (fallback SPA de Vite).
 - [x] Confirmado (por historial de git) que no se tocó la paleta de colores en ningún commit propio; solo se corrigió a qué variable apuntaba la intro.
 
+## Hecho (sesión 20)
+- [x] `PageLayout.jsx` — nuevo componente base en `utils/`: agrupa el wrapper comun a toda pagina de SignIA (div raiz `min-h-screen bg-bg...` + `<Header/>` + `<main className="mx-auto max-w-[110rem]...">`), recibiendo el contenido de cada pagina como `children` (asi cada una mantiene libertad sobre su propio titulo, incluido el efecto "polvo" de la home).
+- [x] `App.jsx` migrado a `PageLayout` como base. Verificado en el navegador (screenshot + sin errores de consola/servidor): la home se ve identica a como estaba antes del cambio.
+
 ## Pendiente / próximos pasos
+- [ ] Migrar `pages/Traduccion.jsx` y `pages/Entrenamiento.jsx` a `PageLayout.jsx` (por ahora solo se aplico en `App.jsx`, a pedido de Snt).
 - [ ] Definir el contenido real de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (modulo de practica).
 - [ ] Si más adelante se agregan assets reales de manos/señas, reemplazar los emojis de `IntroSplash.jsx` (`SENAS`) por esos assets.
 - [ ] Revisar la intro en pantallas muy angostas (el docking usa `left: 1.5rem` / `sm:2.5rem`, igual que el header real, pero vale la pena confirmarlo en dispositivo).
