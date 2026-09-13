@@ -7,24 +7,20 @@
    en lugar de depender de prefers-color-scheme del sistema. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Paleta principal (modo claro).
-   brand     -> palabra "Signia", titulos, elementos a resaltar
-   bg        -> fondo principal de la pagina
-   surface   -> secciones, por encima del fondo principal
-   secondary -> botones, elementos secundarios
-
-   brand-inverso / secondary-inverso -> el brand/secondary de la OTRA
-   paleta (la oscura, vista desde el modo claro). Sirven para elementos que
-   quieren resaltar usando siempre el color "contrario" al tema activo,
-   sin importar cual este puesto (por eso se redefinen al reves adentro
-   de .dark, mas abajo). */
+/* Paleta principal (modo claro). Solo 5 colores, sin variables extra:
+   brand         -> color del texto
+   bg            -> color del fondo
+   surface       -> color secundario (secciones/paneles por encima del fondo)
+   secondary     -> color alterno para resaltar algunas cosas
+   brand-inverso -> texto alterno: el brand de la paleta CONTRARIA al tema
+                    activo, para texto que necesita contrastar sobre fondos
+                    "secondary" (por eso se redefine al reves en .dark). */
 @theme {
   --color-brand: #E68825;
   --color-bg: #F5EBD0;
   --color-surface: #F5E4C6;
   --color-secondary: #C0CAD1;
-  --color-brand-inverso: #666F91;
-  --color-secondary-inverso: #D4C5AB;
+  --color-brand-inverso: #354459;
 }
 
 /* Paleta oscura: cada color se calculo pasando a HSL, girando el matiz
@@ -34,7 +30,6 @@
   --color-brand: #666F91;
   --color-bg: #293447;
   --color-surface: #354459;
-  --color-secondary: #D4C5AB;
+  --color-secondary: #F5E4C6;
   --color-brand-inverso: #E68825;
-  --color-secondary-inverso: #C0CAD1;
 }

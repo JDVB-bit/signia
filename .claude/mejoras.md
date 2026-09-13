@@ -126,6 +126,38 @@
 - [x] `pages/Entrenamiento.jsx` rediseñada: camara a la izquierda con ~15-18% de margen respecto al borde del contenido (columna vacia `lg:w-[15%]`) y los controles (nombre de seña, contador, botones) a la derecha, cada bloque a 35% del ancho; en pantallas chicas (`<lg`) se apila todo verticalmente sin el margen. Contador de muestras convertido en una insignia tipo boton (`bg-brand-inverso`, numero grande centrado, `rounded-2xl`).
 - [x] Verificado en el navegador en ambos temas: en claro, contador/Entrenar usan el azul-gris de la paleta oscura y Enviar el beige claro de la paleta oscura; en oscuro se invierte (naranja/gris claro) — confirmado tambien por posiciones/anchos exactos via `getBoundingClientRect` (margen izquierdo ~18.5% del contenido, cada bloque 35%). Sin errores de consola propios.
 
+## Hecho (sesión 26) — ajustes de Snt sobre el diseño anterior
+- [x] Snt ajusto a mano `index.css` (`--color-secondary-inverso`) y probo un `color-brand` (clase invalida) en el contador de `Entrenamiento.jsx` — no se revirtio nada de eso, se tomo como base.
+- [x] Arreglada la tipografia de `Button.jsx` (`primary`/`secondary`) y del contador: el FONDO sigue usando el color inverso (paleta contraria, sin tocar), pero el TEXTO ahora usa `text-brand` (el color de tipografia del tema ACTUAL, no el inverso) en vez del `text-white`/`text-slate-900`/`color-brand` (invalido) que habia antes.
+- [x] `pages/Entrenamiento.jsx`: camara reubicada al 30% izquierdo de la pagina y los controles al 30% derecho (antes 35%/35%), con margenes/espacio de 10%/20%/10% repartidos entre medio. Verificado con `getBoundingClientRect` (30.0%/30.0% exactos) y los colores de texto/fondo con `getComputedStyle` en ambos temas.
+- Nota para Snt: el 30% pedido es MENOR al 35% anterior — technically no hace la camara "mas grande" en ancho. Se aplico el numero tal cual lo diste; avisame si en realidad querias un porcentaje mayor.
+- Nota: no se toco `index.css` (`--color-secondary-inverso`) mas alla de lo que Snt ya habia dejado — en modo oscuro ese valor (`#F5EBD0`) es en realidad el `--color-bg` de la paleta clara, no su `--color-secondary` (`#C0CAD1`); posible descuido a confirmar con Snt si fue a proposito.
+
+## Hecho (sesión 27) — desacoplar el texto de los botones del brand general
+- [x] Bug reportado por Snt: al modificar `--color-brand` (pensado solo para titulos/tipografia general), el texto de los botones/contador cambiaba tambien, porque ambos usaban la misma variable (`text-brand`).
+- [x] `index.css`: agregada `--color-brand-texto`, copia independiente de `--color-brand` (mismo valor hoy en ambos temas) pensada especificamente para texto sobre fondos `*-inverso`. Ahora tocar el `brand` de titulos no mueve el texto de los botones, y viceversa.
+- [x] `Button.jsx` (`primary`/`secondary`) y el contador de `pages/Entrenamiento.jsx`: cambiado `text-brand` → `text-brand-texto`.
+- [x] Verificado en el navegador: se forzo `--color-brand` a un color de prueba (magenta) en runtime y se confirmo que el titulo cambiaba pero el texto del boton NO — quedaron desacoplados. Colores visuales sin cambios respecto a antes, en ambos temas.
+
+## Hecho (sesión 28) — simplificado a 5 colores + grilla de celdas iguales
+- [x] Snt pidio volver a solo 5 colores (sin variables derivadas extra): `brand` (texto), `bg` (fondo), `surface` (color secundario), `secondary` (color alterno para resaltar), `brand-inverso` (texto alterno). Se eliminaron `--color-secondary-inverso` y `--color-brand-texto` de `index.css` (con eso quedan resueltas las dos notas pendientes de sesiones anteriores sobre esas variables).
+- [x] `Button.jsx` reescrito con esos 5 colores nada mas: `primary` = fondo `secondary` + texto `brand-inverso`; `secondary` = fondo `surface` + texto `brand`.
+- [x] `pages/Entrenamiento.jsx` rediseñada: camara, nombre de seña, contador y botones pasan a una grilla 2x2 de celdas `aspect-square` del mismo tamaño (verificado: 432×432px cada una, exactas). El contador usa el mismo combo `bg-secondary`/`text-brand-inverso` que el boton primario, tal como pidio Snt de ejemplo.
+- [x] Verificado en el navegador en ambos temas (colores exactos via `getComputedStyle`, tamaños via `getBoundingClientRect`). Sin errores de consola.
+- [x] A pedido de Snt, estos cambios (sesiones 26, 27 y 28) se dejaron todos en un solo commit (`git reset --soft` + amend manual) en vez de ir generando un commit por cada ronda de ajustes — ninguno de ellos habia sido pusheado todavia.
+
+## Hecho (sesión 29) — correccion: son 2 bloques, no 4
+- [x] Snt aclaro: no queria 4 celdas iguales — queria SOLO 2 bloques del mismo tamaño: la camara, y una unica seccion que agrupa nombre de seña + contador + botones juntos. El alto de la camara (432px, heredado de la sesión anterior) estaba bien; lo que pedia era hacerla mas ancha.
+- [x] `pages/Entrenamiento.jsx`: vuelto a una grilla de 2 columnas (camara | seccion agrupada), ambas con `h-[27rem]` (432px, el mismo alto de antes) y ancho igualado por el grid (`grid-cols-2`, contenedor `max-w-6xl` en vez de `max-w-4xl`). Adentro de la seccion agrupada, nombre+input, contador y botones se reparten con `justify-between`.
+- [x] Verificado con `getBoundingClientRect`: ambos bloques miden exactamente 560×432px (antes eran 432×432 en la version de 4 celdas) — mismo alto, mas ancho, y los dos bloques iguales entre si. Sin errores de consola.
+- [x] Snt va a ajustar los colores por su cuenta a partir de aca.
+
+## Hecho (sesión 30) — botones y tipografia del input
+- [x] `Button.jsx`: botones mas grandes (`px-8 py-4 text-base`, antes `px-5 py-2.5 text-sm`).
+- [x] `pages/Entrenamiento.jsx`: fila de botones centrada (`justify-center`, antes alineados a la izquierda).
+- [x] Label "Nombre seña" y el placeholder del input ahora usan `text-brand`/`placeholder:text-brand` (el color de tipografia principal del tema activo), antes heredaban el color por defecto.
+- [x] Verificado en el navegador en ambos temas (colores y tamaños exactos por `getComputedStyle`/`getBoundingClientRect`). Sin errores de consola. Se respeto el ajuste de color que Snt esta haciendo por su cuenta en `index.css`.
+
 ## Pendiente / próximos pasos
 - [ ] Implementar la logica real de `handleEntrenar` (captura de muestras via camara + `handLandmarker.js`) y `handleEnviar` (mandar al backend).
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.

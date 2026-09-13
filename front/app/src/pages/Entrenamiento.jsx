@@ -22,23 +22,19 @@ export default function Entrenamiento() {
                 Entrenamiento
             </h2>
 
-            {/*Camara a la izquierda, con un margen antes del borde (~15% del
-                ancho renderizado), y los controles del pipeline a la derecha.*/}
-            <div className="flex flex-col gap-10 lg:flex-row">
-                <div className="hidden shrink-0 lg:block lg:w-[15%]" aria-hidden="true" />
-
-                <section className="aspect-video w-full lg:w-[35%] lg:shrink-0">
+            {/*Solo 2 bloques del mismo tamaño (misma fila de grilla, se
+                estiran parejo): la camara, y una sola seccion que agrupa
+                nombre de la sena + contador + botones.*/}
+            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2">
+                <div className="h-[27rem] w-full">
                     {/*Camara para que el usuario practique las senas frente a ella.
                         El resto del modulo (validacion, guia, etc.) queda pendiente.*/}
                     <CameraFeed className="h-full w-full" />
-                </section>
+                </div>
 
-                <section className="flex w-full flex-col gap-6 lg:w-[35%]">
-                    {/*Controles del pipeline: nombre de la sena a capturar,
-                        contador de muestras tomadas, y las acciones de
-                        entrenar/enviar.*/}
+                <div className="flex h-[27rem] w-full flex-col justify-between gap-6 rounded-2xl bg-surface p-8">
                     <div>
-                        <label htmlFor="nombre-sena" className="block text-sm font-medium">
+                        <label htmlFor="nombre-sena" className="block text-sm font-medium text-brand">
                             Nombre seña
                         </label>
                         <input
@@ -47,20 +43,18 @@ export default function Entrenamiento() {
                             value={nombreSena}
                             onChange={(event) => setNombreSena(event.target.value)}
                             placeholder="Ingresa el nombre de la seña que estas realizando"
-                            className="mt-1 w-full rounded-md border border-secondary/40 bg-surface px-3 py-2 text-sm"
+                            className="mt-1 w-full rounded-md border border-secondary/40 bg-bg px-3 py-2 text-sm placeholder:text-brand"
                         />
                     </div>
 
-                    {/*Contador de muestras, a modo de "boton" llamativo con el
-                        color principal de la paleta contraria.*/}
-                    <div className="flex w-fit flex-col items-center gap-1 rounded-2xl bg-brand-inverso px-8 py-4 text-white shadow-md">
-                        <span className="text-4xl font-extrabold leading-none">{muestras}</span>
+                    <div className="flex flex-col items-center gap-1 rounded-2xl bg-secondary p-6 text-brand-inverso shadow-md">
+                        <span className="text-5xl font-extrabold leading-none">{muestras}</span>
                         <span className="text-xs font-medium uppercase tracking-wide opacity-90">
                             Muestras tomadas
                         </span>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex justify-center gap-4">
                         <Button variant="primary" onClick={handleEntrenar}>
                             Entrenar
                         </Button>
@@ -68,7 +62,7 @@ export default function Entrenamiento() {
                             Enviar
                         </Button>
                     </div>
-                </section>
+                </div>
             </div>
         </PageLayout>
     )
