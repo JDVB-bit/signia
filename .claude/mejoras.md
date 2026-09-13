@@ -115,7 +115,14 @@
 - [x] Verificado en el navegador: con `sessionStorage` vacio se muestra el boton; forzando `signia-camera-permiso=concedido` en `sessionStorage` y navegando a Entrenamiento, intenta activar la camara sola (bloqueado por la vista previa embebida, comportamiento esperado) y actualiza `sessionStorage` a "denegado"; `localStorage` se confirma en `null` en todo momento (ya no se usa). Sin errores de consola propios del componente.
 - [x] Componente `CameraFeed` dado por terminado por ahora, a la espera de las siguientes instrucciones de Snt.
 
+## Hecho (sesión 24)
+- [x] `Button.jsx`: agregada la variante `secondary` (vacia, como el resto — sin estilos definitivos todavia) para poder distinguir semanticamente los botones principal/secundario aunque hoy se vean iguales (nativos, sin clase).
+- [x] `pages/Entrenamiento.jsx`: nueva seccion de controles del pipeline, debajo de la camara — input controlado con label "Nombre seña", contador de "Muestras tomadas" (state en 0, a la espera del pipeline real de captura), y los botones `Entrenar` (`variant="primary"`) y `Enviar` (`variant="secondary"`) usando el componente `Button` existente. Los handlers (`handleEntrenar`/`handleEnviar`) quedan como TODO, sin logica real todavia.
+- [x] Verificado en el navegador: el input recibe texto, ambos botones son clickeables (via accesibilidad, `ref_5`/`ref_6`), sin errores de consola propios.
+
 ## Pendiente / próximos pasos
+- [ ] Definir el diseño/layout visual de la seccion de controles (a pedido explicito de Snt, por ahora quedo sin estilos definitivos).
+- [ ] Implementar la logica real de `handleEntrenar` (captura de muestras via camara + `handLandmarker.js`) y `handleEnviar` (mandar al backend).
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo.
 - [ ] Usar `CameraFeed` tambien en `Traduccion.jsx` cuando se defina su contenido.
 - [ ] Definir el resto del contenido de `Traduccion.jsx` (el traductor en si) y `Entrenamiento.jsx` (mecanica de practica: que se le pide al usuario y como se valida).

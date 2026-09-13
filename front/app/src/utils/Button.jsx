@@ -3,9 +3,10 @@ import { useState } from 'react'
 function Button({children, variant = "default", onClick}){
     const styles = {
         primary: '',
-        sidebar: '', 
-        burble: '', 
-        stop: '',   
+        secondary: '',
+        sidebar: '',
+        burble: '',
+        stop: '',
         default: ''
     }
     
