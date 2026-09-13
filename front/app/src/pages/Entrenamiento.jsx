@@ -25,7 +25,7 @@ export default function Entrenamiento() {
             {/*Solo 2 bloques del mismo tamaño (misma fila de grilla, se
                 estiran parejo): la camara, y una sola seccion que agrupa
                 nombre de la sena + contador + botones.*/}
-            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2">
                 <div className="h-[27rem] w-full">
                     {/*Camara para que el usuario practique las senas frente a ella.
                         El resto del modulo (validacion, guia, etc.) queda pendiente.*/}

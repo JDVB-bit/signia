@@ -167,6 +167,11 @@
 - [x] A pedido de Snt: el boton "Traducir" y la caja de traduccion quedaron agrupados en un `<section>` (antes un `div`), en vez de sueltos directamente en el grid.
 - [x] A esa `<section>` se le agrego el color de las secciones (`bg-surface`, `rounded-2xl`, `p-8` — mismo tratamiento que el panel agrupador de Entrenamiento), para que se vea como un solo bloque agrupado visualmente. Se le saco el `bg-surface` propio a la caja de traduccion (quedaria duplicado/invisible sobre el mismo color del panel). Verificado: 560×432px, misma posicion que la camara, `bg-surface` aplicado correctamente en ambos temas.
 
+## Hecho (sesión 32) — aprovechar el ancho en pantallas grandes
+- [x] Snt reporto que quedaba mucho espacio vacio en los laterales en pantallas anchas (el grid de camara+seccion estaba topado a `max-w-6xl`=1152px, muy por debajo del ancho maximo de `PageLayout`, 110rem=1760px).
+- [x] `pages/Entrenamiento.jsx` y `pages/Traduccion.jsx`: quitado el `max-w-6xl` del grid (ahora `w-full`, sin techo propio — lo unico que lo limita es el `max-w-[110rem]` de `PageLayout`). Alto de los bloques sin cambios (`h-[27rem]`, 432px).
+- [x] Verificado con `getBoundingClientRect`: a 1280px de viewport no cambia nada (560px por bloque, coincidia con el viejo tope); a 1920px de viewport ahora cada bloque mide 800px (antes se hubiera quedado en 560, con espacio vacio a los costados) — camara y seccion siguen exactamente iguales entre si en ambas paginas. Sin errores de consola.
+
 ## Pendiente / próximos pasos
 - [ ] Implementar la logica real de `handleEntrenar`/`handleEnviar` (Entrenamiento) y `handleTraducir` (Traduccion): conectar la captura de muestras y el reconocimiento via `handLandmarker.js` con el backend.
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo, en ambas paginas.

@@ -21,7 +21,7 @@ export default function Traduccion() {
                 y al lado el boton de traducir (mitad de arriba, empieza a la
                 misma altura que la camara) + la caja con la traduccion que
                 devuelve el backend (mitad de abajo, hasta el final de la camara).*/}
-            <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2">
                 <div className="h-[27rem] w-full">
                     {/*Camara para capturar las senas a traducir en tiempo real.*/}
                     <CameraFeed className="h-full w-full" />
@@ -35,7 +35,7 @@ export default function Traduccion() {
                         </Button>
                     </div>
 
-                    <div className="flex items-center justify-center text-center text-brand">
+                    <div className="flex items-center justify-center text-center text-brand color-bg">
                         {traduccion || "La traduccion aparecera aqui"}
                     </div>
                 </section>
