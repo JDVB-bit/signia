@@ -273,6 +273,8 @@ Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits,
 - [x] **Rule 2 — README en cada directorio** (51 en total) con archivos, capa a la que pertenecen y ejemplos. README raíz nuevo.
 - [x] Comentarios multilínea dentro de funciones condensados a una línea (se mantienen los docstrings de módulo/clase/función).
 - [x] Front: 105 tests de Vitest (antes 93) + build OK; verificado en el navegador (Inicio, Entrenamiento con cámara denegada, Traducción, menú + Escape, cambio de tema) sin errores de consola.
+- [x] **Captura verificada por Snt con cámara real** tras la refactorización: vídeo, detección, esqueleto, grabación, contador y descarga del JSON funcionan (el navegador embebido bloquea la cámara, por eso lo confirmó Snt).
+- [x] Snt considera no prioritarios en esta sesión: revisar la compilación commit a commit, construir la imagen Docker, ver la intro en limpio y auditar versiones de dependencias (quedan abajo como técnica de baja prioridad).
 - [x] ⚠️ Cambio de contenido a revisar por Snt: "Lengua de Señas Espanola" → **"Lengua de Signos Española"** (nombre oficial de la LSE) y "lenguaje de señas" → "lengua de señas" en el título.
 
 ## Pendiente / próximos pasos
@@ -292,6 +294,9 @@ Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits,
 - [ ] Confirmación antes de "Borrar última muestra" o botón de deshacer.
 
 ### 🟡 Técnica
+- [ ] (Baja) Construir y probar la imagen Docker del front (Node 24 + pnpm 11 + nginx nuevo).
+- [ ] (Baja) Auditar versiones de dependencias del front y del modelo (regla 1).
+- [ ] (Baja) Ver la intro en una ventana limpia tras pasar sus duraciones a variables CSS.
 - [ ] Fase 2 del plan: `model/scripts/inspeccionar.py` y grabación del dataset.
 - [ ] Fase 5: backend (`POST /muestras`, `GET /modelos/activo`) con la estructura por capas descrita en `back/README.md`.
 - [ ] Tests de componentes/hooks de React (`@testing-library/react` + `jsdom`): hoy solo se prueba lógica pura.
