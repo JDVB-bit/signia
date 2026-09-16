@@ -1,28 +1,23 @@
-# MediaPipe self-hosted assets
+# 🖐️ `public/mediapipe/` — MediaPipe alojado localmente
 
-Estos archivos se sirven localmente (no desde el CDN de Google) para no depender
-de un tercero en cada carga de la app. Los usa [`src/lib/handLandmarker.js`](../../src/lib/handLandmarker.js).
+Se sirve desde nuestro dominio (no desde el CDN de Google) para no depender de un tercero en cada carga. Lo consume [`src/infra/mediapipe/detectorDeManos.js`](../../src/infra/mediapipe/detectorDeManos.js).
 
-## wasm/
+| Carpeta | Contenido |
+|---|---|
+| [`wasm/`](wasm/) | Runtime WebAssembly de `@mediapipe/tasks-vision` |
+| [`models/`](models/) | Modelo `hand_landmarker.task` (float16) |
 
-Copiado directo de `node_modules/@mediapipe/tasks-vision/wasm/` (paquete
-`@mediapipe/tasks-vision`, ver versión en `package.json`). Se actualiza solo:
+## 🔄 Actualizar
 
 ```bash
+# runtime: tras subir la versión de @mediapipe/tasks-vision
 cp node_modules/@mediapipe/tasks-vision/wasm/* public/mediapipe/wasm/
+
+# modelo: la ruta float16/latest apunta siempre a la última release
+curl -L -o public/mediapipe/models/hand_landmarker.task \
+  https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
 ```
 
-## models/hand_landmarker.task
+## ⚠️ Nota sobre Tailwind
 
-Modelo oficial de Google, descargado de:
-https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
-
-Para actualizarlo a la última versión, volver a descargar de esa misma URL
-(el path `float16/latest/` siempre apunta a la última release del modelo float16).
-
-## Nota sobre Tailwind
-
-`src/index.css` tiene `@source not "../public/mediapipe";` porque Tailwind v4
-escanea automáticamente todo el proyecto buscando clases usadas, y el JS
-glue-code de Emscripten en `wasm/*.js` generaba falsos positivos (clases como
-`.visible`/`.absolute` que nadie usa). No borrar esa línea.
+`src/index.css` contiene `@source not "../public/mediapipe";`: Tailwind v4 escanea todo el proyecto y el glue-code de Emscripten generaba clases falsas (`.visible`, `.absolute`...). **No borrar esa línea.**

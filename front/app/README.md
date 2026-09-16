@@ -1,36 +1,48 @@
-# Signia — Frontend
+# ⚛️ `front/app/` — Aplicación React de SignIA
 
-Frontend del proyecto **Signia**, construido con React + Vite y Tailwind CSS v4.
+Construida con **React 19 + Vite 8 + Tailwind CSS v4**, tests con **Vitest** y lint con **oxlint**.
 
-## Stack
+## 📦 Requisitos
 
-- [React 19](https://react.dev/)
-- [Vite 8](https://vite.dev/)
-- [Tailwind CSS v4](https://tailwindcss.com/) (vía `@tailwindcss/vite`)
-- [oxlint](https://oxc.rs/docs/guide/usage/linter) para linting
+- Node.js 24 LTS
+- pnpm 11 (fijado en `package.json → packageManager`; con `corepack enable` se usa solo)
 
-## Requisitos
-
-- Node.js
-- [pnpm](https://pnpm.io/)
-
-## Scripts
+## 🛠️ Scripts
 
 ```bash
-pnpm install     # instalar dependencias
-pnpm dev         # servidor de desarrollo
-pnpm build       # build de producción (salida en dist/)
-pnpm preview     # previsualizar el build de producción
+pnpm install     # instala dependencias
+pnpm dev         # servidor de desarrollo en http://localhost:5173
+pnpm test        # tests unitarios (Vitest, entorno node)
 pnpm lint        # lint con oxlint
+pnpm build       # build de producción en dist/
+pnpm preview     # sirve el build para revisarlo
 ```
 
-## Estructura
+## 📁 Archivos de esta carpeta
+
+| Archivo | Para qué sirve |
+|---|---|
+| `index.html` | Documento raíz (idioma `es`, título, favicon) donde se monta React |
+| `package.json` / `pnpm-lock.yaml` | Dependencias y scripts, con versión de pnpm fijada |
+| `vite.config.js` | Plugins (React, Tailwind) y configuración de Vitest |
+| `.oxlintrc.json` | Reglas de lint (hooks de React, exports de componentes) |
+| `Dockerfile` | Imagen en dos etapas: compila con Node 24 y sirve con nginx |
+| `nginx.conf` | Sirve la SPA, cachea `/assets/` y redirige rutas a `index.html` |
+| `.dockerignore` / `.gitignore` | Lo que no entra en la imagen / en git |
+
+## 🏛️ Arquitectura en capas (`src/`)
 
 ```
-src/
-├── assets/    # imágenes, íconos, etc.
-├── pages/     # páginas/vistas
-├── App.jsx    # componente raíz
-├── index.css  # estilos globales y variables de tema
-└── main.jsx   # punto de entrada
+presentacion ──► aplicacion ──► dominio
+     │                ▲
+     └──► infra ──────┘
+```
+
+La **regla de dependencia**: las capas internas (`dominio`, `aplicacion`) no importan nada de React, del DOM ni de MediaPipe. Ver [`src/README.md`](src/README.md).
+
+## 🐳 Docker
+
+```bash
+docker build -t signia-front .
+docker run -p 8080:80 signia-front   # abre http://localhost:8080
 ```
