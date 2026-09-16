@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signia-modelo"
+version = "0.1.0"
+description = "Etapa 1 de SignIA: senas (landmarks) -> glosas. Contrato de datos, preprocesado y modelo."
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0"]
+
+[project.optional-dependencies]
+# El entrenamiento y la exportacion; el backend de produccion NO los necesita.
+entrenamiento = ["torch>=2.5", "onnx>=1.17", "onnxruntime>=1.20"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["signia_modelo*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+markers = [
+  "torch: necesita torch instalado",
+  "onnx: necesita onnx y onnxruntime instalados",
+]

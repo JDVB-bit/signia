@@ -172,7 +172,107 @@
 - [x] `pages/Entrenamiento.jsx` y `pages/Traduccion.jsx`: quitado el `max-w-6xl` del grid (ahora `w-full`, sin techo propio — lo unico que lo limita es el `max-w-[110rem]` de `PageLayout`). Alto de los bloques sin cambios (`h-[27rem]`, 432px).
 - [x] Verificado con `getBoundingClientRect`: a 1280px de viewport no cambia nada (560px por bloque, coincidia con el viejo tope); a 1920px de viewport ahora cada bloque mide 800px (antes se hubiera quedado en 560, con espacio vacio a los costados) — camara y seccion siguen exactamente iguales entre si en ambas paginas. Sin errores de consola.
 
+## Hecho (sesión 33) — planificación del modelo y del despliegue
+- [x] Sesión de diseño (sin tocar código de producto): se analizó la idea de Snt de un endpoint `/entrenar` que llame a un orquestador PyTorch con un método "aprender" incremental.
+- [x] Conclusión acordada: la idea es viable en su forma general, con 3 correcciones — (1) separar "capturar muestra" de "entrenar", (2) el entrenamiento es un job por lotes asíncrono, no un paso de gradiente dentro del request HTTP, (3) **el dataset es la fuente de verdad y el modelo es un artefacto derivado** (siempre reconstruible).
+- [x] Definido qué va a GitHub: sólo el CÓDIGO del modelo (`model.py`, `train.py`, `preprocess.py`, config) — ni pesos (`.pt`/`.onnx`), ni muestras, ni base de datos. Nada de GitHub Actions para entrenar; Actions queda sólo para lint/tests/deploy.
+- [x] Analizadas alternativas de arquitectura del modelo (DTW+kNN como baseline sin entrenamiento, GRU/1D-CNN con softmax reentrenable, y embeddings+prototipos para alta en caliente de señas) y de despliegue (VPS con disco persistente vs PaaS efímero vs HF Spaces; torch para entrenar, onnxruntime para servir).
+
+## Hecho (sesión 34) — modelo de datos y evaluación de Google Cloud
+- [x] Confirmado el flujo definitivo con Snt: muestras → almacenamiento → `POST /entrenamientos` reentrena **desde cero con todo el dataset** → nuevo artefacto versionado → puntero "activo" con rollback. El reentrenamiento es a demanda (botón Entrenar), no por cada muestra enviada — coincide con los dos botones que ya existen en `Entrenamiento.jsx`.
+- [x] Matiz importante aclarado: las secuencias de landmarks NO van dentro de la DB. Van como ficheros `.npz` en disco/objeto; la DB guarda sólo metadatos (etiqueta, ruta, versión de preprocesado, origen, estado).
+- [x] Definido el esquema de tablas: `muestras`, `senas`, `entrenamientos` (jobs) y `modelos` (registro con `activo`).
+- [x] Evaluado Google Cloud: viable en dos sabores — (A) Cloud Run + GCS + Firestore + Cloud Run Job para entrenar (serverless, ~0€, más piezas), (B) Compute Engine `e2-micro` del always-free + Docker + SQLite (igual que un VPS, más simple, 1GB de RAM como límite real). Descartados Cloud SQL y Vertex AI por coste/sobredimensión.
+- [x] Regla identificada: **SQLite y Cloud Run son incompatibles** (contenedor sin estado + GCS FUSE rompe el locking). Si Cloud Run → Firestore; si VM → SQLite.
+
+## Hecho (sesión 35) — plan de implementación escrito
+- [x] Corrección de Snt sobre la semántica de los botones de `Entrenamiento.jsx`: **Entrenar = capturar muestra** (incrementa el contador), **Enviar = llamar al endpoint**. Anotado en el plan; queda abierta la decisión de si "Enviar" dispara además el reentrenamiento.
+- [x] Escrito `.claude/plan-implementacion.md` — plan completo en 9 fases (0 a 8) con ficheros a crear, decisiones pendientes y criterio de "hecho" por fase. El despliegue queda explícitamente fuera, con una sección de reglas que garantizan que el software sea independiente de él.
+- [x] Mejora del diseño respecto a la sesión anterior: se guardan los landmarks **crudos** (no normalizados) como fuente de verdad, y el preprocesado se aplica al vuelo. Así cambiar la normalización ya NO invalida el dataset — basta reentrenar.
+- [x] Definido el vector de features: T=48 frames × 128 (por mano: presencia 1 + posición de muñeca 2 + escala 1 + forma 60). Conserva la posición de la seña en el encuadre, que en LSE es discriminante y se perdería con una normalización ingenua.
+
+## Hecho (sesión 36) — vocabulario abierto y modo continuo
+- [x] `T = 48` confirmado por Snt; marcado como decisión cerrada en el plan.
+- [x] Retirado el techo de "5 señas" del alcance: el plan pasa a **vocabulario abierto `n`**. `n_clases` se deriva del dataset al entrenar y no se escribe en ninguna parte (ni código, ni front, ni API).
+- [x] `model.py` se divide en **`Encoder`** (secuencia → vector) y **`Cabeza`** (vector → decisión), para poder cambiar softmax → prototipos a escala sin tocar encoder, preprocesado ni API.
+- [x] Nueva sección **§Escalar a `n` señas** en el plan: tabla de horas de grabación por tamaño de vocabulario (el muro real es el dato, no la arquitectura), y las dos cosas que se rompen a partir de ~100 señas (solo-manos deja de bastar → `PoseLandmarker`; el reentrenamiento completo deja de ser instantáneo).
+- [x] Aclaración importante a Snt: "reconocer señas una por una" NO significa que haga una frase seguida y la transcriba. Eso es **segmentación**, un problema aparte — se le dio su propia **Fase 6.5 (modo continuo)** con ventana deslizante + la clase `reposo` como separador + consolidación, y CTC anotado como el límite de ese enfoque.
+- [x] Añadido a la Fase 2: si la ambición es vocabulario grande, grabar `PoseLandmarker` desde ya aunque el modelo v1 lo ignore (lo que no se graba hoy no se puede usar mañana sin regrabar).
+- [x] Añadidos 3 riesgos nuevos a la tabla del plan (señado fluido en modo continuo, vocabulario sin dato, orden de clases inestable entre artefactos).
+
+## Hecho (sesión 37) — el traductor, no el diccionario
+- [x] Snt fijó el propósito del producto: **traducir la frase entera y corrida**. Reconocer una seña por pulsación seria solo un "diccionario inteligente", no un traductor. El plan se reestructuró completo alrededor de eso.
+- [x] Confirmado: se graba cuando el usuario **pulsa "Entrenar"** (toggle, sin autodetección) — decision cerrada en el plan.
+- [x] El modo continuo deja de ser la "Fase 6.5 opcional" y pasa a ser la **Fase 6, el producto**. El modo aislado se reencuadra como el *camino de entrenamiento* (captura de dato etiquetado), no como una forma alternativa de usar la app.
+- [x] Tres consecuencias arrastradas hacia atras, que son el valor real de esta sesion:
+  1. **La inferencia se muda al navegador** (`onnxruntime-web`): el modo continuo predice ~6 veces/segundo y una peticion HTTP por ventana es insostenible. El backend sale del camino critico de la traduccion y pasa a servir el artefacto (`GET /modelos/activo/weights.onnx`). Un backend caido ya no rompe la demo.
+  2. **Hay que grabar frases completas** (Fase 2c, nueva) etiquetadas con la secuencia de palabras: para medir WER, para calibrar los umbrales de consolidacion, y porque es el dato que necesita el CTC de la v2. Barato hoy, caro despues.
+  3. **La metrica pasa a ser WER** (Word Error Rate) por frase, no accuracy por muestra. Un modelo con 95% aislado puede transcribir basura. Se desglosa en inserciones / borrados / sustituciones porque cada error se arregla distinto.
+- [x] Resuelta la tension que creaba inferir en JS: el preprocesado seguia teniendo que existir una sola vez. Solucion — la **normalizacion va dentro del grafo ONNX** (mismo codigo en Python y en el navegador) y solo el remuestreo temporal (aritmetica de indices) se escribe dos veces, con un **test de conformidad** contra fixtures generadas por Python.
+- [x] `reposo` promovida a pieza critica: en modo continuo **es el segmentador**. Necesita 2-3× mas muestras que una seña normal e incluir frames de transicion entre señas.
+- [x] Añadido el **roadmap v2 (CTC)** como seccion propia: la ventana deslizante es un heuristico que exige micro-pausas; el señado fluido pide entrenar sobre frases con perdida CTC. Nada de las fases 0-5 se tira.
+- [x] `umbrales.json` añadido al artefacto del modelo (confianza minima y `k` de consolidacion), calibrados con las frases de la Fase 2c en vez de puestos a ojo.
+
+## Hecho (sesión 38) — arquitectura en dos etapas (glosas → texto)
+- [x] Snt corrigió una ambigüedad del plan: **el modelo NO se entrena con frases**, se entrena con señas. Entrenar con frases como unidad seria inviable — "no podemos predecir como hablara alguien". Las frases de la Fase 2c eran ya solo para evaluar/calibrar, pero el plan daba pie a la lectura contraria: se reescribió con un aviso explícito y el por qué de la generalización (unidad = seña → cualquier combinación y orden).
+- [x] Recuperada del planteamiento original de Snt la **arquitectura en dos etapas**, que faltaba en el plan:
+  - **Etapa 1 (nuestro modelo, PyTorch/ONNX):** señas → secuencia de **glosas** (palabras sueltas, sin conjugar, en orden LSE). Corre en el navegador.
+  - **Etapa 2 (agente de texto / LLM):** glosas → español natural. Es un problema de TEXTO, no de visión. Nueva **Fase 6b**.
+- [x] Añadida la sección "Arquitectura en dos etapas" al principio del plan, con el diagrama del pipeline y el principio nuevo (·6: el modelo aprende señas, nunca frases).
+- [x] Fase 6 renombrada a "Reconocimiento continuo → secuencia de glosas (etapa 1)" para que no se confunda con el producto final.
+- [x] **Fase 6b diseñada:** `POST /redactar` en el backend (la clave del LLM no puede estar en el navegador), **una llamada por frase**, no por ventana. Se dispara al cerrar la frase (stop manual o `reposo` >~2s), no palabra a palabra. Fallback a mostrar glosas crudas si no hay backend/LLM.
+- [x] Tres guardas en `/redactar`: validar cada glosa contra la tabla `senas` **antes** de construir el prompt (cierra la inyección de prompt: vocabulario cerrado = superficie cerrada), instrucción anti-invención + temperatura baja, y la tira de glosas siempre visible junto al texto como evidencia.
+- [x] **Dos métricas separadas:** WER sobre glosas mide nuestro modelo; la calidad del español se juzga aparte pasando las glosas de REFERENCIA por la etapa 2 (aisla el fallo de cada etapa). `evaluar_frases.py` es también el que calibra `k` y el umbral y los escribe en `umbrales.json`.
+- [x] Aclarado en el roadmap v2 que **CTC tampoco memoriza frases**: su alfabeto de salida es el vocabulario de señas y de una frase aprende la *alineación*, no la frase como unidad — sigue generalizando a órdenes nunca vistos. Se explicita para que no parezca que contradice el principio 6.
+- [x] Añadidos 4 riesgos nuevos (confundir etapas al diagnosticar, el LLM inventando contenido no señado, inyección vía glosas, dependencia del servicio externo).
+- [x] Anotado que `LLM_API_KEY` es el único secreto real del proyecto: sólo en el backend, por variable de entorno, nunca versionada.
+
+## Hecho (sesión 39) — Fase 0 implementada y testeada
+
+- [x] **Paquete `model/signia_modelo/` con Clean Architecture en tres capas**, con la única regla de que las de dentro no importan nada de las de fuera:
+  - `dominio/` (python puro, sin numpy ni torch): `contrato.py` (T=48, F=128, índices de muñeca/nudillo, EPS), `entidades.py` (`Lado`, `Mano`, `Frame`, `Muestra` → `MuestraAislada` / `MuestraFrase`), `errores.py` y `puertos.py` (`Protocol`: `Remuestreador`, `LectorMuestras`, `EscritorMuestras`, `RepositorioMuestras`).
+  - `aplicacion/` (numpy): `remuestreo.py` y `preprocess.py` (muestra cruda → `(48,2,21,3)` + presencia `(48,2)`).
+  - `infra/`: `json_contrato.py` (validación de la frontera), `repo_ficheros.py` (dataset en disco, `DATOS_DIR` por entorno), `normalizacion_torch.py` (las features, dentro del grafo) y `exportacion_onnx.py`.
+- [x] **Entidades inmutables que se validan a sí mismas**: si existe la instancia, cumple el contrato. Las capas de arriba no repiten validaciones.
+- [x] **Regla única para dos manos con el mismo `lado`** (falso positivo de MediaPipe): gana la de mayor `score`. Vive sólo en `Frame.mano()`.
+- [x] **Remuestreo por selección de índices, no interpolación** (interpolar entre un frame con mano y otro sin ella inventaría medias manos). Redondeo escrito como `int(x+0.5)` a propósito: `round()` de Python redondea al par y `Math.round` de JS no — esa diferencia sola bastaría para que el navegador y el entrenamiento vieran tensores distintos. Hay un test dedicado a ese caso.
+- [x] **Normalización dentro del grafo ONNX** (`Normalizacion`, sin parámetros): presencia(1) + posición de muñeca(2) + escala(1) + forma(60) por mano → 128. La mano ausente sale en ceros exactos y la escala se clampa, así que el grafo no puede producir `NaN`.
+- [x] **Exportación con el exportador nuevo (`dynamo=True`) y ejes dinámicos compartidos** (lote y tiempo), más test de paridad torch ↔ onnxruntime a 1e-5 con 0, 1 y 2 manos y con 1/12/48/120 frames.
+- [x] **`model/contrato.md`**: el contrato en prosa, fuente de verdad, con la tabla de qué cambio rompe qué.
+- [x] **Fixtures de conformidad** (`model/tests/fixtures/*.json`, 6 casos límite) + `scripts/generar_fixtures.py`. Falta el lado JS, que los leerá tal cual.
+- [x] **164 tests con pytest, todos en verde** (`pytest -m "not torch"` deja 138 que corren sin torch en ~3 s). Cubren: validación de entidades, remuestreo y sus bordes, ranuras/presencia del tensor, inyección del remuestreador (DIP), round-trip JSON, saneado de rutas (la etiqueta viene del usuario y acaba siendo carpeta), invariancias de la normalización y paridad ONNX.
+- [x] `model/pyproject.toml` (paquete instalable + config de pytest con marcadores `torch`/`onnx`), `model/README.md`, `model/.gitignore` (`data/`, `artefactos/`, `__pycache__/`) y `requirements.txt` con `onnx`/`onnxscript`/`onnxruntime`/`pytest` fijados.
+
 ## Pendiente / próximos pasos
+- [ ] Elegir el proveedor/modelo de la etapa 2 y escribir el prompt de `dominio/prompt.py` (vocabulario disponible + que la entrada son glosas de LSE + formato de salida).
+
+- [ ] **Siguiente sesion: arrancar la Fase 0/1** del plan (contrato de datos + `useCapturaSenas.js`).
+- [ ] Decidir el vocabulario inicial concreto (recomendado 5-10 señas + `reposo`).
+- [ ] Decidir si se graba `PoseLandmarker` desde el principio — unica decision irreversible de la Fase 2.
+
+- [ ] Decidir el vocabulario inicial concreto (recomendado 5-10 señas + `reposo`) para arrancar la Fase 2.
+- [ ] Decidir si se graba `PoseLandmarker` desde el principio — depende de si la meta a medio plazo es un vocabulario grande.
+- [ ] Decidir el orden entre Fase 6.5 (frases) y Fase 7 (reentrenar en vivo) según qué quiera enseñar la demo.
+
+- [ ] Seguir `.claude/plan-implementacion.md` — los pendientes de modelo/backend de la sesión 33 quedan sustituidos por ese documento.
+- [ ] Completar `.gitignore`: hecho `model/.gitignore` (`data/`, `artefactos/`, `__pycache__/`); falta `back/data/`, `*.pt`, `*.onnx`, `*.npz`, `*.sqlite`.
+- [ ] Decidir si el botón "Enviar" dispara el reentrenamiento (opción A del plan) o si queda como acción de administración aparte (opción B).
+
+- [ ] **Decisión pendiente de Snt:** destino de despliegue — Cloud Run+GCS+Firestore vs `e2-micro`+SQLite vs VPS externo. Determina el motor de BD y si el entrenamiento corre en el servidor o en el PC de Snt con CUDA.
+- [ ] Nunca promover automáticamente un modelo con métricas peores que el activo (guardrail del job de entrenamiento) y conservar el artefacto anterior para rollback.
+- [ ] Escritura atómica del artefacto de modelo (escribir en temporal + `rename`) para que `/predecir` nunca lea una carpeta a medio escribir.
+
+### Modelo / backend (definido en sesión 33, por implementar)
+- [ ] **Fase 0 — contrato de datos:** fijar el esquema de una muestra (T frames × 126 features, normalización relativa a la muñeca + escala de la mano, `preprocess_version`) y escribirlo una sola vez para reusarlo en front y back.
+- [ ] **Fase 1 — captura local:** en `Entrenamiento`, bucle de `handLandmarker` → buffer de frames → botón de grabar ventana → exportar JSON a disco (todavía sin backend). Grabar 5 señas × 30-40 muestras, más una clase "reposo".
+- [ ] **Fase 2 — baseline sin entrenar:** DTW + k-NN en un script de `model/` para medir si las clases son separables antes de entrenar nada.
+- [ ] **Fase 3 — modelo PyTorch:** GRU/1D-CNN pequeño + `train.py` + augmentación (ruido, escala temporal, espejo) + evaluación con split por sesión de grabación (no aleatorio) + matriz de confusión y métricas guardadas.
+- [ ] **Fase 4 — API de inferencia:** `POST /muestras` y `POST /predecir` en FastAPI, artefacto con `manifest.json` (pesos + mapa de etiquetas + versión de preprocesado + métricas), SQLite en disco persistente.
+- [ ] **Fase 5 — reentrenamiento en caliente:** `POST /entrenamientos` como job asíncrono + `GET /entrenamientos/{id}` para poll desde el front; puntero de modelo "activo" con rollback.
+- [ ] **Fase 6 — despliegue:** front estático (Vercel/Cloudflare Pages) + back en contenedor con volumen; decidir VPS vs PaaS.
+- [ ] **Seguridad:** proteger `/muestras` y `/entrenamientos` con secreto/token — abiertos a internet permiten envenenar el dataset.
+- [ ] **Idea futura:** encoder + prototipos (few-shot) para dar de alta una seña sin reentrenar, y/o exportar a ONNX para inferir en el navegador y dejar el backend sólo para entrenamiento.
+
 - [ ] Implementar la logica real de `handleEntrenar`/`handleEnviar` (Entrenamiento) y `handleTraducir` (Traduccion): conectar la captura de muestras y el reconocimiento via `handLandmarker.js` con el backend.
 - [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo, en ambas paginas.
 - [ ] Definir el formato/contrato de la respuesta del backend para pintar la traduccion real en la caja de `Traduccion.jsx` (por ahora es un placeholder de texto).

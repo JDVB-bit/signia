@@ -1,0 +1,12 @@
+# El dataset crudo es el activo irreemplazable, pero no se versiona en git:
+# son cientos de MB de landmarks. Backup aparte (plan, Fase 8).
+data/
+
+# Artefactos entrenados (pesos, manifest). Se publican por la API, no por git.
+artefactos/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
