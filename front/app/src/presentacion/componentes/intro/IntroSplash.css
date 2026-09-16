@@ -1,7 +1,9 @@
-/* Pantalla de carga inicial de SignIA.
-   Fases: aparicion -> espera -> succion -> crossfade -> (se desmonta) */
+/* Pantalla de carga inicial de SignIA: aparicion -> espera -> succion -> crossfade.
+   Las duraciones llegan como variables desde IntroSplash.jsx (unica fuente). */
 
 .intro-overlay {
+    /* Curva de aceleracion de la succion: arranca lento y acelera hacia el header */
+    --intro-curva-succion: cubic-bezier(0.55, 0, 1, 0.45);
     position: fixed;
     inset: 0;
     z-index: 999;
@@ -13,7 +15,7 @@
 
 .intro-overlay--crossfade {
     background-color: var(--color-surface);
-    transition: background-color 350ms ease-in-out;
+    transition: background-color var(--intro-duracion-crossfade) ease-in-out;
 }
 
 @keyframes intro-fade-in {
@@ -25,8 +27,7 @@
     }
 }
 
-/* Bloque "SignIA" + lema. Nace centrado y grande, y termina "succionado"
-   hacia la esquina donde vive el logo real del header. */
+/* Marca + lema: nace centrada y termina succionada hacia el logo real del header */
 .intro-marca {
     position: fixed;
     top: 50%;
@@ -42,7 +43,7 @@
 }
 
 .intro-marca--aparicion {
-    animation: intro-aparecer 850ms ease-out forwards;
+    animation: intro-aparecer var(--intro-duracion-aparicion) ease-out forwards;
 }
 
 @keyframes intro-aparecer {
@@ -70,9 +71,9 @@
     opacity: 1;
     transform: translate(0, 0) scale(0.5);
     transition:
-        top 2800ms cubic-bezier(0.55, 0, 1, 0.45),
-        left 2800ms cubic-bezier(0.55, 0, 1, 0.45),
-        transform 2800ms cubic-bezier(0.55, 0, 1, 0.45);
+        top var(--intro-duracion-succion) var(--intro-curva-succion),
+        left var(--intro-duracion-succion) var(--intro-curva-succion),
+        transform var(--intro-duracion-succion) var(--intro-curva-succion);
 }
 
 @media (min-width: 640px) {

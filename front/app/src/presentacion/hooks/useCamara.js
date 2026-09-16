@@ -7,14 +7,7 @@ import {
     permisoConcedidoEnEstaVisita,
     recordarPermisoDeCamara,
 } from '../../infra/navegador/permisoDeCamara.js'
-
-export const ESTADOS_CAMARA = Object.freeze({
-    INICIAL: 'inicial',
-    SOLICITANDO: 'solicitando',
-    ACTIVA: 'activa',
-    DENEGADA: 'denegada',
-    NO_SOPORTADA: 'no-soportada',
-})
+import { ESTADOS_CAMARA } from '../estados/estadosDeCamara.js'
 
 /** Gestiona la camara que se muestra en `videoRef`.
  *

@@ -1,25 +1,29 @@
 import { useEffect, useState } from 'react'
 
-/** Animacion de escritura simple: va revelando el texto caracter a caracter. */
-export default function Typewriter({ text, speed = 25, className = '' }) {
-    const [shown, setShown] = useState('')
-    const done = shown.length >= text.length
+/** Tiempo entre caracteres: rapido para no hacer esperar, lento para que se perciba la escritura. */
+const MS_POR_CARACTER = 25
+const CURSOR = '▌'
+
+/** Animacion de escritura: revela el texto caracter a caracter con un cursor parpadeante. */
+export default function Typewriter({ text, speed = MS_POR_CARACTER, className = '' }) {
+    const [visible, setVisible] = useState('')
+    const terminado = visible.length >= text.length
 
     useEffect(() => {
-        setShown('')
-        let i = 0
-        const id = setInterval(() => {
-            i += 1
-            setShown(text.slice(0, i))
-            if (i >= text.length) clearInterval(id)
+        setVisible('')
+        let caracteres = 0
+        const intervalo = setInterval(() => {
+            caracteres += 1
+            setVisible(text.slice(0, caracteres))
+            if (caracteres >= text.length) clearInterval(intervalo)
         }, speed)
-        return () => clearInterval(id)
+        return () => clearInterval(intervalo)
     }, [text, speed])
 
     return (
         <p className={className}>
-            {shown}
-            {!done && <span className="animate-pulse">▌</span>}
+            {visible}
+            {!terminado && <span className="animate-pulse">{CURSOR}</span>}
         </p>
     )
 }

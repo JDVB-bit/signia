@@ -3,13 +3,7 @@
 import { useEffect, useState } from 'react'
 
 import { obtenerDetectorDeManos } from '../../infra/mediapipe/detectorDeManos.js'
-
-export const ESTADOS_DETECTOR = Object.freeze({
-    INACTIVO: 'inactivo',
-    CARGANDO: 'cargando',
-    LISTO: 'listo',
-    ERROR: 'error',
-})
+import { ESTADOS_DETECTOR } from '../estados/estadosDelDetector.js'
 
 /** Mientras `activo` sea false no se descarga nada (el modelo pesa varios MB). */
 export default function useDetectorDeManos(activo) {

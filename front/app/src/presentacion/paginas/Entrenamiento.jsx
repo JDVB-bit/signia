@@ -1,49 +1,43 @@
-import { useCallback, useRef, useState } from "react"
-import PageLayout from "../componentes/layout/PageLayout"
-import CameraFeed from "../componentes/camara/CameraFeed"
-import Button from "../componentes/comunes/Button"
-import useCapturaSenas from "../hooks/useCapturaSenas"
+import { useCallback, useRef, useState } from 'react'
+
+import CameraFeed from '../componentes/camara/CameraFeed'
+import ContadorDeMuestras from '../componentes/captura/ContadorDeMuestras'
+import IndicadorDeGrabacion from '../componentes/captura/IndicadorDeGrabacion'
+import IndicadorDeManos from '../componentes/captura/IndicadorDeManos'
+import Button from '../componentes/comunes/Button'
+import PageLayout from '../componentes/layout/PageLayout'
+import TituloPagina from '../componentes/layout/TituloPagina'
+import { ESTADOS_CAMARA } from '../estados/estadosDeCamara'
+import { ESTADOS_DETECTOR } from '../estados/estadosDelDetector'
+import useCapturaSenas from '../hooks/useCapturaSenas'
+import { mensajeDeEstadoDeCaptura } from '../textos/mensajeDeEstadoDeCaptura'
 
 /** Modo AISLADO: el camino de captura de dato para entrenar (Fase 1 del plan).
  *
- * "Entrenar" graba UNA muestra de UNA sena (pulsar inicia, pulsar otra vez o el
- * tope de tiempo la cierra) y sube el contador. "Enviar" descarga todas las
- * muestras acumuladas como JSON; en la Fase 5 pasara a llamar al endpoint.
- * Traducir una frase seguida es el modo continuo, y vive en `Traduccion`. */
+ * "Entrenar" graba UNA muestra de UNA seña (pulsar inicia; pulsar otra vez o el
+ * tope de tiempo la cierra) y sube el contador. "Enviar" descarga el lote como
+ * JSON; en la Fase 5 pasara a llamar al endpoint. Traducir es el modo continuo.
+ */
 export default function Entrenamiento() {
-    const [nombreSena, setNombreSena] = useState("")
+    const [nombreSena, setNombreSena] = useState('')
     const [camaraActiva, setCamaraActiva] = useState(false)
     const videoRef = useRef(null)
     const canvasRef = useRef(null)
 
-    const alCambiarEstadoCamara = useCallback(
-        (estado) => setCamaraActiva(estado === "activa"),
-        [],
-    )
+    const alCambiarEstadoCamara = useCallback((estado) => setCamaraActiva(estado === ESTADOS_CAMARA.ACTIVA), [])
 
-    const captura = useCapturaSenas({
-        videoRef,
-        canvasRef,
-        etiqueta: nombreSena,
-        activo: camaraActiva,
-    })
-
-    const listo = captura.estado === "listo"
+    const captura = useCapturaSenas({ videoRef, canvasRef, etiqueta: nombreSena, activo: camaraActiva })
+    const detectorListo = captura.estado === ESTADOS_DETECTOR.LISTO
+    const hayMuestras = captura.muestras.length > 0
 
     return (
         <PageLayout>
-            <h2 className="text-center text-4xl font-extrabold tracking-tight text-brand drop-shadow-sm sm:text-5xl lg:text-6xl">
-                Entrenamiento
-            </h2>
+            <TituloPagina>Entrenamiento</TituloPagina>
 
-            {/*Solo 2 bloques del mismo tamaño (misma fila de grilla, se
-                estiran parejo): la camara, y una sola seccion que agrupa
-                nombre de la sena + contador + botones.*/}
+            {/* Dos bloques del mismo tamaño: la camara y el panel de captura */}
             <div className="grid w-full grid-cols-1 gap-8 sm:grid-cols-2">
                 <div className="h-[27rem] w-full">
-                    {/*Camara + overlay del esqueleto de la mano: permite
-                        descartar una muestra mala antes de guardarla, y ver
-                        que lado (izquierda/derecha) reporta MediaPipe.*/}
+                    {/* El esqueleto sobre el video permite descartar una muestra mala antes de guardarla */}
                     <CameraFeed
                         className="h-full w-full"
                         videoRef={videoRef}
@@ -53,18 +47,8 @@ export default function Entrenamiento() {
                         <canvas ref={canvasRef} className="h-full w-full object-cover" />
 
                         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3 text-xs font-semibold">
-                            <span className="rounded-full bg-brand-inverso/70 px-3 py-1 text-bg">
-                                {captura.manosDetectadas === 0
-                                    ? "sin manos"
-                                    : `${captura.manosDetectadas} mano${captura.manosDetectadas > 1 ? "s" : ""}`}
-                            </span>
-
-                            {captura.grabando && (
-                                <span className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-brand-inverso">
-                                    <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                                    grabando {captura.segundos.toFixed(1)}s
-                                </span>
-                            )}
+                            <IndicadorDeManos cantidad={captura.manosDetectadas} />
+                            {captura.grabando && <IndicadorDeGrabacion segundos={captura.segundos} />}
                         </div>
                     </CameraFeed>
                 </div>
@@ -72,55 +56,36 @@ export default function Entrenamiento() {
                 <div className="flex h-[27rem] w-full flex-col justify-between gap-6 rounded-2xl bg-surface p-8">
                     <div>
                         <label htmlFor="nombre-sena" className="block text-sm font-medium text-brand">
-                            Nombre seña
+                            Nombre de la seña
                         </label>
                         <input
                             id="nombre-sena"
                             type="text"
                             value={nombreSena}
-                            onChange={(event) => setNombreSena(event.target.value)}
-                            placeholder="Ingresa el nombre de la seña que estas realizando"
+                            onChange={(evento) => setNombreSena(evento.target.value)}
+                            placeholder="Escribe el nombre de la seña que vas a realizar"
                             className="mt-1 w-full rounded-md border border-secondary/40 bg-bg px-3 py-2 text-sm placeholder:text-brand"
                         />
                     </div>
 
-                    <div className="flex flex-col items-center gap-1 rounded-2xl bg-secondary p-6 text-brand-inverso shadow-md">
-                        <span className="text-5xl font-extrabold leading-none">
-                            {captura.muestras.length}
-                        </span>
-                        <span className="text-xs font-medium uppercase tracking-wide opacity-90">
-                            Muestras tomadas
-                        </span>
-                    </div>
+                    <ContadorDeMuestras cantidad={captura.muestras.length} />
 
-                    {/*Una sola linea de estado: lo que hace falta saber antes
-                        de pulsar, sin mover el resto del bloque.*/}
-                    <p className="min-h-[1.5rem] text-center text-sm text-brand">
-                        {captura.aviso
-                            ? captura.aviso
-                            : !camaraActiva
-                              ? "Activa la camara para empezar a grabar."
-                              : captura.estado === "cargando"
-                                ? "Cargando el detector de manos..."
-                                : captura.estado === "error"
-                                  ? "No se pudo cargar el detector de manos."
-                                  : `Sesion ${captura.sesion}`}
+                    {/* min-h fijo: el texto cambia sin mover el resto del bloque */}
+                    <p className="min-h-[1.5rem] text-center text-sm text-brand" aria-live="polite">
+                        {mensajeDeEstadoDeCaptura({
+                            aviso: captura.aviso,
+                            camaraActiva,
+                            estadoDetector: captura.estado,
+                            sesion: captura.sesion,
+                        })}
                     </p>
 
                     <div className="flex flex-col items-center gap-3">
                         <div className="flex justify-center gap-4">
-                            <Button
-                                variant="primary"
-                                onClick={captura.alternarGrabacion}
-                                disabled={!listo}
-                            >
-                                {captura.grabando ? "Detener" : "Entrenar"}
+                            <Button variant="primary" onClick={captura.alternarGrabacion} disabled={!detectorListo}>
+                                {captura.grabando ? 'Detener' : 'Entrenar'}
                             </Button>
-                            <Button
-                                variant="secondary"
-                                onClick={() => captura.exportar()}
-                                disabled={captura.muestras.length === 0}
-                            >
+                            <Button variant="secondary" onClick={() => captura.exportar()} disabled={!hayMuestras}>
                                 Enviar
                             </Button>
                         </div>
@@ -128,10 +93,10 @@ export default function Entrenamiento() {
                         <button
                             type="button"
                             onClick={captura.borrarUltima}
-                            disabled={captura.muestras.length === 0}
+                            disabled={!hayMuestras}
                             className="text-xs font-medium text-brand underline underline-offset-4 transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                            Borrar ultima muestra
+                            Borrar última muestra
                         </button>
                     </div>
                 </div>

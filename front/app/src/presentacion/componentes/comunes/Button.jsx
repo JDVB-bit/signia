@@ -1,35 +1,28 @@
-// Solo los 5 colores de la paleta: primary usa "secondary" (el color
-// alterno para resaltar) de fondo con "brand-inverso" (texto alterno)
-// encima; secondary usa "surface" (el color secundario) de fondo con
-// "brand" (el color de texto normal) encima.
-const COLOR_STYLES = {
+/** Colores por variante, usando solo la paleta de `index.css`. */
+const ESTILOS_POR_VARIANTE = {
+    // Acción principal: el color de resalte con el texto alterno encima
     primary: 'bg-secondary text-brand-inverso',
+    // Acción secundaria: el color de las secciones con el texto normal
     secondary: 'bg-surface text-brand',
-    sidebar: '',
-    burble: '',
-    stop: '',
-    default: ''
 }
 
-// "lg" es un 10% mas grande que el tamaño por defecto (lo usa, por
-// ejemplo, el boton "Traducir" de la pagina de Traduccion).
-const SIZE_STYLES = {
-    default: 'px-8 py-4 text-base',
+/** "lg" es un 10% mas grande que "md" (lo usa, por ejemplo, el boton de Traducir). */
+const ESTILOS_POR_TAMANO = {
+    md: 'px-8 py-4 text-base',
     lg: 'px-[2.2rem] py-[1.1rem] text-[1.1rem]',
 }
 
-function Button({ children, variant = "default", size = "default", onClick, disabled = false }) {
-    const className = `rounded-md font-semibold transition-opacity ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:opacity-90'} ${SIZE_STYLES[size]} ${COLOR_STYLES[variant]}`
+const ESTILOS_HABILITADO = 'hover:opacity-90'
+const ESTILOS_DESHABILITADO = 'cursor-not-allowed opacity-50'
+
+/** Boton comun del sitio. Siempre `type="button"` para no enviar formularios por accidente. */
+export default function Button({ children, variant = 'primary', size = 'md', onClick, disabled = false }) {
+    const estadoVisual = disabled ? ESTILOS_DESHABILITADO : ESTILOS_HABILITADO
+    const className = `rounded-md font-semibold transition-opacity ${estadoVisual} ${ESTILOS_POR_TAMANO[size]} ${ESTILOS_POR_VARIANTE[variant]}`
 
     return (
         <button type="button" className={className} onClick={onClick} disabled={disabled}>
-            {variant === 'sidebar' ? (
-                <span className=''></span>
-            ) : (
-                children
-            )}
+            {children}
         </button>
     )
 }
-
-export default Button

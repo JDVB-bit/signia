@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import useCamara, { ESTADOS_CAMARA } from '../../hooks/useCamara'
+import { ESTADOS_CAMARA } from '../../estados/estadosDeCamara'
+import useCamara from '../../hooks/useCamara'
 import AvisoEstadoCamara from './AvisoEstadoCamara'
 
 /** Recuadro reutilizable con el video en vivo de la camara (Entrenamiento y Traduccion).

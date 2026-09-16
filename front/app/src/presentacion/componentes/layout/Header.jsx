@@ -1,20 +1,19 @@
-import ThemeToggle from "../tema/ThemeToggle"
-import BurgerMenu from "../navegacion/BurgerMenu"
+import BurgerMenu from '../navegacion/BurgerMenu'
+import ThemeToggle from '../tema/ThemeToggle'
 
-/** Header comun a todas las paginas del sitio: titulo + lema, boton de
- * tema y burger menu. Se centraliza aca para que sea igual en todas
- * partes en vez de repetir el markup por pagina. */
+/** Cabecera comun a todas las paginas: marca + lema, boton de tema y menu. */
 export default function Header() {
     return (
         <header className="flex items-center justify-between gap-4 bg-surface px-6 py-4 sm:px-10">
-            <section>
+            <div>
                 <h1 className="text-3xl font-bold text-brand">SignIA</h1>
-                <h3 className="text-sm opacity-80 text-brand">Manos que hablan. Tecnologia que escucha</h3>
-            </section>
-            <section className="flex items-center gap-3">
+                {/* El lema es un subtitulo, no un encabezado: no debe romper la jerarquia h1 > h2 */}
+                <p className="text-sm text-brand opacity-80">Manos que hablan. Tecnología que escucha</p>
+            </div>
+            <nav aria-label="Preferencias y navegación" className="flex items-center gap-3">
                 <ThemeToggle />
                 <BurgerMenu />
-            </section>
+            </nav>
         </header>
     )
 }

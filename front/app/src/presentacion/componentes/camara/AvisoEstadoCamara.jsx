@@ -1,4 +1,4 @@
-import { ESTADOS_CAMARA } from '../../hooks/useCamara'
+import { ESTADOS_CAMARA } from '../../estados/estadosDeCamara'
 
 /** Explicacion para cada estado en el que la camara todavia no muestra video. */
 const MENSAJE_POR_ESTADO = {

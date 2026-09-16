@@ -1,85 +1,69 @@
-import { Fragment } from "react"
-import PageLayout from "../componentes/layout/PageLayout"
-import Typewriter from "../componentes/contenido/Typewriter"
-import SectionCard from "../componentes/contenido/SectionCard"
-import InfoBubble from "../componentes/contenido/InfoBubble"
-import ImageBelt from "../componentes/contenido/ImageBelt"
-import senasPersona1 from "../../assets/senas-persona1.jpg"
-import senasPersona2 from "../../assets/senas-persona2.jpg"
-import senasPersona3 from "../../assets/senas-persona3.jpg"
+import senasPersona1 from '../../assets/senas-persona1.jpg'
+import senasPersona2 from '../../assets/senas-persona2.jpg'
+import senasPersona3 from '../../assets/senas-persona3.jpg'
+import ImageBelt from '../componentes/contenido/ImageBelt'
+import InfoBubble from '../componentes/contenido/InfoBubble'
+import SectionCard from '../componentes/contenido/SectionCard'
+import Typewriter from '../componentes/contenido/Typewriter'
+import PageLayout from '../componentes/layout/PageLayout'
+import TituloAnimado from '../componentes/layout/TituloAnimado'
 
-const TITULO = "Traductor de lenguaje de señas con Inteligencia Artificial"
-const PALABRAS_TITULO = TITULO.split(" ")
+const TITULO = 'Traductor de lengua de señas con Inteligencia Artificial'
 
-const IMAGENES_CARRUSEL = [
-    { src: senasPersona1, alt: "Persona haciendo una sena en LSE" },
-    { src: senasPersona2, alt: "Persona haciendo una sena en LSE" },
-    { src: senasPersona3, alt: "Persona haciendo una sena en LSE" },
-]
+const TEXTO_ALTERNATIVO_IMAGEN = 'Persona haciendo una seña en LSE'
+const IMAGENES_CARRUSEL = [senasPersona1, senasPersona2, senasPersona3].map((src) => ({
+    src,
+    alt: TEXTO_ALTERNATIVO_IMAGEN,
+}))
 
+/** Pagina de inicio: que es SignIA, su mision y sus herramientas. */
 export default function Inicio() {
-
     return (
         <PageLayout>
-            {/*Titulo principal con efecto de aparicion tipo "polvo", palabra a palabra*/}
-            <h2 className="text-center text-4xl font-extrabold tracking-tight text-brand drop-shadow-sm sm:text-5xl lg:text-6xl">
-                {PALABRAS_TITULO.map((palabra, index) => (
-                    <Fragment key={`${palabra}-${index}`}>
-                        <span
-                            className="animate-dust-in inline-block"
-                            style={{ animationDelay: `${index * 90}ms` }}
-                        >
-                            {palabra}
-                        </span>
-                        {index < PALABRAS_TITULO.length - 1 ? " " : ""}
-                    </Fragment>
-                ))}
-            </h2>
-            {/*Fila 1: "Que es" va siempre junto a la seccion de imagenes*/}
+            <TituloAnimado texto={TITULO} />
+
+            {/* Fila 1: "¿Qué es?" siempre junto al carrusel de imagenes */}
             <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
                 <SectionCard title="¿Qué es?">
                     <Typewriter
                         className="mt-3 leading-relaxed"
-                        text="SignIA es una aplicacion web que traduce la Lengua de Señas Espanola (LSE) a texto en tiempo real, usando la camara del dispositivo. Esta pensada para acercar la comunicacion entre personas sordas o con discapacidad auditiva y personas oyentes que no conocen la lengua de señas, sin necesidad de un interprete presente."
+                        text="SignIA es una aplicación web que traduce la Lengua de Signos Española (LSE) a texto en tiempo real, usando la cámara del dispositivo. Está pensada para acercar la comunicación entre personas sordas o con discapacidad auditiva y personas oyentes que no conocen la lengua de señas, sin necesidad de un intérprete presente."
                     />
-                    <InfoBubble label="Mas sobre que es SignIA">
+                    <InfoBubble label="Más sobre qué es SignIA">
                         <p>
-                            Al usar SignIA, la persona simplemente se coloca frente a la camara y hace las
-                            señas con normalidad; la aplicacion las reconoce y muestra el texto
+                            Al usar SignIA, la persona simplemente se coloca frente a la cámara y hace las
+                            señas con normalidad; la aplicación las reconoce y muestra el texto
                             correspondiente de forma inmediata, directamente en el navegador y sin instalar
                             nada. Por ahora, SignIA reconoce frases cortas (de hasta 5 palabras) en LSE,
-                            como una primera version pensada para crecer con el tiempo hacia un vocabulario
-                            mas amplio.
+                            como una primera versión pensada para crecer con el tiempo hacia un vocabulario
+                            más amplio.
                         </p>
                         <p className="text-sm opacity-80">
-                            Proyecto academico desarrollado por <strong>Edy Avila</strong>,{" "}
+                            Proyecto académico desarrollado por <strong>Edy Avila</strong>,{' '}
                             <strong>Juan Vieda</strong> y <strong>Andersson Castro</strong>.
                         </p>
                     </InfoBubble>
                 </SectionCard>
 
                 <section className="mx-auto h-56 w-full max-w-md overflow-hidden rounded-lg sm:h-64">
-                    {/*Cinturon de imagenes: cada una se ve ~5s y la siguiente empuja a la
-                        anterior hacia la izquierda con una transicion fluida.*/}
                     <ImageBelt images={IMAGENES_CARRUSEL} />
                 </section>
             </div>
 
-            {/*Fila 2: Mision y Herramientas, con distinto ancho pero misma altura
-                (se estiran parejo dentro de la fila del grid)*/}
+            {/* Fila 2: Misión y Herramientas, distinto ancho pero misma altura */}
             <div className="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-12">
                 <SectionCard title="Misión" className="flex flex-col lg:col-span-7 lg:p-12">
                     <Typewriter
                         className="mt-3 leading-relaxed"
-                        text="Acercar la Lengua de Señas Espanola a cualquier persona, en cualquier momento, sin que la comunicacion dependa de que ambas partes compartan el mismo idioma o sistema de señas. Buscamos que traducir LSE sea tan simple como abrir una pagina web."
+                        text="Acercar la Lengua de Signos Española a cualquier persona, en cualquier momento, sin que la comunicación dependa de que ambas partes compartan el mismo idioma o sistema de señas. Buscamos que traducir LSE sea tan simple como abrir una página web."
                     />
-                    <InfoBubble label="Mas sobre nuestra mision">
+                    <InfoBubble label="Más sobre nuestra misión">
                         <p>
-                            Queremos que SignIA sea util en situaciones cotidianas — la atencion al
-                            publico, un salon de clases, o simplemente una conversacion entre amigos y
-                            familiares — sin costo ni curva de aprendizaje para quien la usa. Mas alla de
-                            la traduccion en si, aspiramos a que este sea un primer paso hacia
-                            herramientas mas accesibles para la comunidad sorda hispanohablante.
+                            Queremos que SignIA sea útil en situaciones cotidianas — la atención al
+                            público, un salón de clases, o simplemente una conversación entre amigos y
+                            familiares — sin costo ni curva de aprendizaje para quien la usa. Más allá de
+                            la traducción en sí, aspiramos a que este sea un primer paso hacia
+                            herramientas más accesibles para la comunidad sorda hispanohablante.
                         </p>
                     </InfoBubble>
                 </SectionCard>
@@ -87,25 +71,25 @@ export default function Inicio() {
                 <SectionCard title="Herramientas" className="flex flex-col lg:col-span-5">
                     <Typewriter
                         className="mt-3 leading-relaxed"
-                        text="SignIA ofrece un traductor en tiempo real que convierte señas en texto apenas se realizan frente a la camara, sin registros, descargas ni configuracion previa: se abre la pagina y se empieza a traducir."
+                        text="SignIA ofrece un traductor en tiempo real que convierte señas en texto apenas se realizan frente a la cámara, sin registros, descargas ni configuración previa: se abre la página y se empieza a traducir."
                     />
                     <InfoBubble label="Ver todas las herramientas">
                         <ul className="list-disc space-y-2 pl-5">
                             <li>
-                                <strong>Traduccion instantanea:</strong> el texto aparece en pantalla
+                                <strong>Traducción instantánea:</strong> el texto aparece en pantalla
                                 mientras se hacen las señas.
                             </li>
                             <li>
-                                <strong>Sin instalacion:</strong> funciona directamente desde el
+                                <strong>Sin instalación:</strong> funciona directamente desde el
                                 navegador, en computador o celular.
                             </li>
                             <li>
-                                <strong>Frases de hasta 5 palabras</strong> en esta primera version.
+                                <strong>Frases de hasta 5 palabras</strong> en esta primera versión.
                             </li>
                         </ul>
                     </InfoBubble>
                 </SectionCard>
             </div>
         </PageLayout>
-    );
+    )
 }
