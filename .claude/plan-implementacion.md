@@ -209,8 +209,8 @@ haber escrito una línea de API.
 
 ### Ficheros
 - `front/app/src/presentacion/hooks/useCapturaSenas.js` — hook que compone detector, bucle y grabación.
-- `front/app/src/utils/CameraFeed.jsx` — extender para exponer el `<video>`.
-- `front/app/src/pages/Entrenamiento.jsx` — conectar botones.
+- `front/app/src/presentacion/componentes/camara/CameraFeed.jsx` — extender para exponer el `<video>`.
+- `front/app/src/presentacion/paginas/Entrenamiento.jsx` — conectar botones.
 
 ### Qué hace el hook
 - `requestAnimationFrame` sobre el `<video>` → `detectForVideo()` del
@@ -494,7 +494,7 @@ este proyecto.
 - `front/app/src/infra/onnx/modeloOnnx.js` — carga el `.onnx` + `labels` + `umbrales`,
   cachea en IndexedDB, comprueba versión contra `/modelos/activo`.
 - `front/app/src/presentacion/hooks/useReconocimientoContinuo.js` — el hook del pipeline.
-- `front/app/src/pages/Traduccion.jsx` — UI de transcripción en vivo.
+- `front/app/src/presentacion/paginas/Traduccion.jsx` — UI de transcripción en vivo.
 
 ### El pipeline de consolidación
 
@@ -591,7 +591,7 @@ Tres guardas, y la primera no es opcional:
 - `back/app/infra/llm.py` — el cliente; `LLM_API_KEY` por variable de entorno.
 - `back/app/dominio/prompt.py` — el prompt: vocabulario disponible, explicación
   de que la entrada son glosas de LSE, y el formato de salida esperado.
-- `front/app/src/pages/Traduccion.jsx` — pintar glosas y texto redactado.
+- `front/app/src/presentacion/paginas/Traduccion.jsx` — pintar glosas y texto redactado.
 
 ### Cuándo se dispara
 Al cerrar la frase: cuando el usuario detiene la sesión, o tras un `reposo`
