@@ -1,8 +1,7 @@
-"""Exportacion a ONNX y comprobacion de paridad torch <-> onnxruntime.
+"""📦 Exportacion de un modulo de torch a un grafo ONNX con ejes dinamicos.
 
-Vive en infra porque depende de dos frameworks. Lo usan el test de la Fase 0 y
-`exportar_onnx.py` de la Fase 4: la comprobacion de paridad **no es opcional**,
-es donde aparecen los bugs de exportacion.
+Vive en infra porque depende de dos frameworks. Ejecutar el grafo exportado es
+otra responsabilidad y vive en `ejecucion_onnx.py`.
 """
 
 from __future__ import annotations
@@ -10,10 +9,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Sequence
 
-import numpy as np
 import torch
 from torch import nn
 from torch.export import Dim
+
+#: Version del conjunto de operadores ONNX (soportada por onnxruntime-web).
+OPSET_ONNX = 17
+
+#: Posicion de los ejes dinamicos en cada tensor de entrada.
+EJE_LOTE = 0
+EJE_TIEMPO = 1
 
 
 def exportar(
@@ -23,7 +28,7 @@ def exportar(
     *,
     nombres_entrada: Sequence[str],
     nombre_salida: str,
-    opset: int = 17,
+    opset: int = OPSET_ONNX,
 ) -> Path:
     """Exporta `modulo` a ONNX con el lote y el tiempo como ejes dinamicos.
 
@@ -34,9 +39,10 @@ def exportar(
     ruta = Path(ruta)
     ruta.parent.mkdir(parents=True, exist_ok=True)
 
+    # 🔗 Las mismas instancias de Dim en todas las entradas = ejes compartidos
     lote = Dim("lote")
     tiempo = Dim("tiempo")
-    ejes = tuple({0: lote, 1: tiempo} for _ in ejemplo)
+    ejes = tuple({EJE_LOTE: lote, EJE_TIEMPO: tiempo} for _ in ejemplo)
 
     modulo.eval()
     with torch.no_grad():
@@ -51,14 +57,3 @@ def exportar(
             dynamo=True,
         )
     return ruta
-
-
-def salida_onnx(
-    ruta: Path | str,
-    entradas: dict[str, np.ndarray],
-) -> np.ndarray:
-    """Ejecuta el grafo con onnxruntime (lo mismo que hara el navegador)."""
-    import onnxruntime as ort
-
-    sesion = ort.InferenceSession(str(ruta), providers=["CPUExecutionProvider"])
-    return sesion.run(None, entradas)[0]

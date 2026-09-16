@@ -17,7 +17,8 @@ pytest.importorskip("onnxruntime")
 from signia_modelo.aplicacion.preprocess import construir_entrada  # noqa: E402
 from signia_modelo.dominio.contrato import F, N_DIMS, N_LANDMARKS, N_MANOS, T  # noqa: E402
 from signia_modelo.dominio.entidades import Lado  # noqa: E402
-from signia_modelo.infra.exportacion_onnx import exportar, salida_onnx  # noqa: E402
+from signia_modelo.infra.ejecucion_onnx import salida_onnx  # noqa: E402
+from signia_modelo.infra.exportacion_onnx import exportar  # noqa: E402
 from signia_modelo.infra.normalizacion_torch import (  # noqa: E402
     NOMBRE_SALIDA,
     NOMBRES_ENTRADA,

@@ -9,12 +9,7 @@ import pytest
 from signia_modelo.dominio.contrato import N_LANDMARKS, SCHEMA
 from signia_modelo.dominio.entidades import MuestraAislada, MuestraFrase
 from signia_modelo.dominio.errores import ErrorDeContrato
-from signia_modelo.infra.json_contrato import (
-    cargar_muestra,
-    guardar_muestra,
-    muestra_a_dict,
-    muestra_desde_dict,
-)
+from signia_modelo.infra.json_contrato import muestra_a_dict, muestra_desde_dict
 from tests import factorias
 
 PUNTOS = [[0.0, 0.0, 0.0]] * N_LANDMARKS
@@ -121,20 +116,3 @@ class TestEscrituraYRoundTrip:
     def test_el_dict_es_serializable_a_json(self, muestra_aislada):
         texto = json.dumps(muestra_a_dict(muestra_aislada))
         assert muestra_desde_dict(json.loads(texto)) == muestra_aislada
-
-    def test_guardar_y_cargar_desde_disco(self, tmp_path, muestra_frase):
-        ruta = tmp_path / "sub" / "frase.json"
-        guardar_muestra(ruta, muestra_frase)
-        assert cargar_muestra(ruta) == muestra_frase
-
-    def test_json_corrupto_menciona_la_ruta(self, tmp_path):
-        ruta = tmp_path / "roto.json"
-        ruta.write_text("{no es json", encoding="utf-8")
-        with pytest.raises(ErrorDeContrato, match="roto.json"):
-            cargar_muestra(ruta)
-
-    def test_error_de_contrato_menciona_la_ruta(self, tmp_path):
-        ruta = tmp_path / "malo.json"
-        ruta.write_text(json.dumps({"schema": 99}), encoding="utf-8")
-        with pytest.raises(ErrorDeContrato, match="malo.json"):
-            cargar_muestra(ruta)
