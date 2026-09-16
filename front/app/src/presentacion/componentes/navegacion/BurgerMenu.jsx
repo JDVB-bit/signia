@@ -1,13 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ENLACES_DE_NAVEGACION } from '../../rutas'
 
-const DEFAULT_LINKS = [
-    { label: 'Inicio', href: '/' },
-    { label: 'Traductor', href: '/traduccion' },
-    { label: 'Entrenamiento', href: '/entrenamiento' },
-]
 
-export default function BurgerMenu({ links = DEFAULT_LINKS }) {
+export default function BurgerMenu({ enlaces = ENLACES_DE_NAVEGACION }) {
     const [open, setOpen] = useState(false)
     const panelId = useId()
     const firstLinkRef = useRef(null)
@@ -65,15 +61,15 @@ export default function BurgerMenu({ links = DEFAULT_LINKS }) {
                         className="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-lg bg-surface shadow-lg"
                     >
                         <ul className="flex flex-col py-2">
-                            {links.map((link, index) => (
-                                <li key={link.href}>
+                            {enlaces.map((enlace, index) => (
+                                <li key={enlace.ruta}>
                                     <Link
                                         ref={index === 0 ? firstLinkRef : null}
-                                        to={link.href}
+                                        to={enlace.ruta}
                                         onClick={() => setOpen(false)}
                                         className="block px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-secondary/40"
                                     >
-                                        {link.label}
+                                        {enlace.etiqueta}
                                     </Link>
                                 </li>
                             ))}

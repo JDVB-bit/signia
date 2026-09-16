@@ -1,7 +1,7 @@
 import { useState } from "react"
-import PageLayout from "../utils/PageLayout"
-import CameraFeed from "../utils/CameraFeed"
-import Button from "../utils/Button"
+import PageLayout from "../componentes/layout/PageLayout"
+import CameraFeed from "../componentes/camara/CameraFeed"
+import Button from "../componentes/comunes/Button"
 
 export default function Traduccion() {
     // TODO: esto lo va a actualizar el pipeline de reconocimiento cuando exista.

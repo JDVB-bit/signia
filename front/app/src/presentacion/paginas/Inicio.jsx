@@ -1,13 +1,12 @@
 import { Fragment } from "react"
-import "./App.css"
-import PageLayout from "./utils/PageLayout"
-import Typewriter from "./utils/Typewriter"
-import SectionCard from "./utils/SectionCard"
-import InfoBubble from "./utils/InfoBubble"
-import ImageBelt from "./utils/ImageBelt"
-import senasPersona1 from "./assets/senas-persona1.jpg"
-import senasPersona2 from "./assets/senas-persona2.jpg"
-import senasPersona3 from "./assets/senas-persona3.jpg"
+import PageLayout from "../componentes/layout/PageLayout"
+import Typewriter from "../componentes/contenido/Typewriter"
+import SectionCard from "../componentes/contenido/SectionCard"
+import InfoBubble from "../componentes/contenido/InfoBubble"
+import ImageBelt from "../componentes/contenido/ImageBelt"
+import senasPersona1 from "../../assets/senas-persona1.jpg"
+import senasPersona2 from "../../assets/senas-persona2.jpg"
+import senasPersona3 from "../../assets/senas-persona3.jpg"
 
 const TITULO = "Traductor de lenguaje de señas con Inteligencia Artificial"
 const PALABRAS_TITULO = TITULO.split(" ")
@@ -18,7 +17,7 @@ const IMAGENES_CARRUSEL = [
     { src: senasPersona3, alt: "Persona haciendo una sena en LSE" },
 ]
 
-export default function App() {
+export default function Inicio() {
 
     return (
         <PageLayout>

@@ -1,5 +1,5 @@
-import ThemeToggle from "./ThemeToggle"
-import BurgerMenu from "./BurgerMenu"
+import ThemeToggle from "../tema/ThemeToggle"
+import BurgerMenu from "../navegacion/BurgerMenu"
 
 /** Header comun a todas las paginas del sitio: titulo + lema, boton de
  * tema y burger menu. Se centraliza aca para que sea igual en todas

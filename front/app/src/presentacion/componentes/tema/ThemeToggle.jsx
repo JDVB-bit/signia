@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { THEME_STORAGE_KEY, calcularTemaOscuro } from './theme'
+import { THEME_STORAGE_KEY, calcularTemaOscuro } from '../../../infra/navegador/preferenciaDeTema'
 
 export default function ThemeToggle() {
     const [dark, setDark] = useState(calcularTemaOscuro)

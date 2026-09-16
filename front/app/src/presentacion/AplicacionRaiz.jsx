@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import App from './App'
-import Traduccion from './pages/Traduccion'
-import Entrenamiento from './pages/Entrenamiento'
-import IntroSplash from './utils/IntroSplash'
+import Inicio from './paginas/Inicio'
+import Traduccion from './paginas/Traduccion'
+import Entrenamiento from './paginas/Entrenamiento'
+import IntroSplash from './componentes/intro/IntroSplash'
+import { RUTAS } from './rutas'
 
 const INTRO_STORAGE_KEY = 'signia-intro-vista'
 
@@ -30,9 +31,9 @@ export default function AppRoot() {
 
     return (
         <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/traduccion" element={<Traduccion />} />
-            <Route path="/entrenamiento" element={<Entrenamiento />} />
+            <Route path={RUTAS.INICIO} element={<Inicio />} />
+            <Route path={RUTAS.TRADUCCION} element={<Traduccion />} />
+            <Route path={RUTAS.ENTRENAMIENTO} element={<Entrenamiento />} />
         </Routes>
     )
 }
