@@ -1,20 +1,14 @@
 @import "tailwindcss";
-/* Excluir los assets de MediaPipe self-hosted: son JS glue-code de Emscripten,
-   no código de la app, y Tailwind los escaneaba generando clases falsas. */
+
+/* Los assets de MediaPipe son glue-code de Emscripten: Tailwind generaba clases falsas al escanearlos */
 @source not "../public/mediapipe";
 
-/* Activa el prefijo dark: en base a la clase .dark en <html>,
-   en lugar de depender de prefers-color-scheme del sistema. */
+/* dark: depende de la clase .dark en <html> (la elige el usuario), no de prefers-color-scheme */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Paleta principal (modo claro). Solo 5 colores, sin variables extra:
-   brand         -> color del texto
-   bg            -> color del fondo
-   surface       -> color secundario (secciones/paneles por encima del fondo)
-   secondary     -> color alterno para resaltar algunas cosas
-   brand-inverso -> texto alterno: el brand de la paleta CONTRARIA al tema
-                    activo, para texto que necesita contrastar sobre fondos
-                    "secondary" (por eso se redefine al reves en .dark). */
+/* 🎨 Paleta clara. Solo 5 colores:
+   brand -> texto · bg -> fondo · surface -> secciones · secondary -> resaltes
+   brand-inverso -> texto sobre "secondary" (el brand de la paleta contraria) */
 @theme {
   --color-brand: #E68825;
   --color-bg: #F5EBD0;
@@ -23,9 +17,7 @@
   --color-brand-inverso: #354459;
 }
 
-/* Paleta oscura: cada color se calculo pasando a HSL, girando el matiz
-   +180 grados (color complementario en el circulo cromatico) e invirtiendo
-   la luminosidad (100 - L), manteniendo la saturacion original. */
+/* 🌙 Paleta oscura: matiz +180° (complementario) y luminosidad invertida (100 - L) */
 .dark {
   --color-brand: #666F91;
   --color-bg: #293447;

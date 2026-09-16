@@ -256,49 +256,58 @@
 - [x] `Button.jsx` acepta `disabled` (y `type="button"`), para que Entrenar/Enviar se apaguen cuando no hay cámara o no hay muestras.
 - [x] **93 tests de vitest en verde** + los 164 de pytest. Verificado además en el navegador con una cámara falsa (un canvas con una foto de manos reales): MediaPipe detecta, el esqueleto se dibuja alineado con el vídeo espejado, el contador sube y el JSON exportado **pasa el validador del contrato en Python y llega hasta las features `(1, 48, 128)` sin NaN**.
 
+## Hecho (sesión 41) — auditoría y cumplimiento de `.claude/claude.md` y `rules.md`
+
+Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits, cada uno compila y pasa tests).
+
+- [x] **Infra del repo:** `.gitignore` con entornos de Python y artefactos (`*.onnx`, `*.pt`, `*.npz`, `*.sqlite`, `back/data/`); Docker con Node 24 LTS (Node 20 ya sin soporte), pnpm fijado en `packageManager`, sin el `|| npm ci` que ocultaba fallos; nginx cachea `/assets/`; `index.html` con `lang="es"`, título y el `favicon.svg` que faltaba (daba 404).
+- [x] **Modelo (Python), un archivo por responsabilidad:** `dominio/entidades/` (una entidad por archivo) y `dominio/puertos/` (un puerto por archivo) con reexport en `__init__`; en `infra/` se separan `json_contrato` (dict↔entidad) de `ficheros_json` (disco), `nombres_de_ruta`, `configuracion_datos`, `exportacion_onnx` y `ejecucion_onnx`. Constantes con nombre (`SCORE_MINIMO/MAXIMO`, `OPSET_ONNX`, ejes, carpetas). 164 tests en verde.
+- [x] **Front en Clean Architecture:** `lib/` y `utils/` desaparecen. Ahora `src/dominio`, `src/aplicacion`, `src/infra/{mediapipe,canvas,navegador}` y `src/presentacion/{paginas,componentes,hooks,estados,textos,estilos}`, con `rutas.js` como única fuente de URLs.
+- [x] **`useCapturaSenas` (236 líneas, 6 responsabilidades) partido** en `useDetectorDeManos`, `useBucleDeDeteccion`, `useGrabacionDeMuestra` y `useMuestrasCapturadas`. El dominio devuelve códigos de descarte y la presentación pone el texto.
+- [x] **Bugs/riesgos corregidos de paso:** (1) el detector de MediaPipe cae a CPU si la GPU falla y no cachea una promesa rechazada; (2) `localStorage`/`sessionStorage` envueltos en `almacenamientoSeguro` (en modo privado lanzaban y rompían la app); (3) `useCamara` descarta respuestas tardías de `getUserMedia` — el doble montaje de StrictMode dejaba un flujo de cámara encendido; (4) apagar la cámara a mitad de grabación la aborta.
+- [x] **Código muerto eliminado:** `Sidebar.jsx`, variantes vacías de `Button` (`sidebar`, `burble`, `stop`, `default`), `setTraduccion` sin uso. Lint de oxlint limpio.
+- [x] **Duplicaciones eliminadas:** lógica de Escape (BurgerMenu/InfoBubble → `useCerrarConEscape`), `h2` de título copiado por página (`TituloPagina`/`TituloAnimado`), duraciones de la intro escritas en JS y en CSS (ahora variables CSS desde una única fuente), rutas en router y menú.
+- [x] **Entrenamiento:** indicadores y contador extraídos a `componentes/captura/`; los cuatro ternarios anidados del mensaje de estado → `mensajeDeEstadoDeCaptura` con test.
+- [x] **Traducción honesta:** el botón "Traducir" no hacía nada; ahora está deshabilitado y explica que se activará con el modelo entrenado.
+- [x] **UX/accesibilidad:** tildes en todos los textos visibles, lema del header como `<p>` (rompía la jerarquía de encabezados), `aria-live` en mensajes de estado, `prefers-reduced-motion` en las animaciones globales.
+- [x] **Rule 2 — README en cada directorio** (51 en total) con archivos, capa a la que pertenecen y ejemplos. README raíz nuevo.
+- [x] Comentarios multilínea dentro de funciones condensados a una línea (se mantienen los docstrings de módulo/clase/función).
+- [x] Front: 105 tests de Vitest (antes 93) + build OK; verificado en el navegador (Inicio, Entrenamiento con cámara denegada, Traducción, menú + Escape, cambio de tema) sin errores de consola.
+- [x] **Captura verificada por Snt con cámara real** tras la refactorización: vídeo, detección, esqueleto, grabación, contador y descarga del JSON funcionan (el navegador embebido bloquea la cámara, por eso lo confirmó Snt).
+- [x] Snt considera no prioritarios en esta sesión: revisar la compilación commit a commit, construir la imagen Docker, ver la intro en limpio y auditar versiones de dependencias (quedan abajo como técnica de baja prioridad).
+- [x] ⚠️ Cambio de contenido a revisar por Snt: "Lengua de Señas Espanola" → **"Lengua de Signos Española"** (nombre oficial de la LSE) y "lenguaje de señas" → "lengua de señas" en el título.
+
 ## Pendiente / próximos pasos
-- [ ] Elegir el proveedor/modelo de la etapa 2 y escribir el prompt de `dominio/prompt.py` (vocabulario disponible + que la entrada son glosas de LSE + formato de salida).
 
-- [ ] **Siguiente sesion: arrancar la Fase 0/1** del plan (contrato de datos + `useCapturaSenas.js`).
-- [ ] Decidir el vocabulario inicial concreto (recomendado 5-10 señas + `reposo`).
-- [ ] Decidir si se graba `PoseLandmarker` desde el principio — unica decision irreversible de la Fase 2.
+### 🔴 Decisiones de Snt (bloquean fases)
+- [ ] **Verificar el handedness con el vídeo espejado** antes de grabar: levantar la mano derecha y leer el rótulo; si dice "izquierda", `INVERTIR_LADO = true` en `front/app/src/infra/mediapipe/ladoDesdeCategoria.js`.
+- [ ] Decidir el vocabulario inicial (recomendado 5-10 señas + `reposo`) para arrancar la Fase 2.
+- [ ] Decidir si se graba `PoseLandmarker` desde el principio — única decisión irreversible de la Fase 2.
+- [ ] Decidir si "Enviar" dispara el reentrenamiento (opción A del plan) o queda como acción de administración (opción B).
+- [ ] Elegir proveedor/modelo LLM de la etapa 2 y escribir el prompt (`back/app/dominio/prompt.py`).
+- [ ] Destino de despliegue (Cloud Run+GCS+Firestore vs `e2-micro`+SQLite vs VPS).
 
-- [ ] Decidir el vocabulario inicial concreto (recomendado 5-10 señas + `reposo`) para arrancar la Fase 2.
-- [ ] Decidir si se graba `PoseLandmarker` desde el principio — depende de si la meta a medio plazo es un vocabulario grande.
-- [ ] Decidir el orden entre Fase 6.5 (frases) y Fase 7 (reentrenar en vivo) según qué quiera enseñar la demo.
+### 🟠 Producto
+- [ ] **El contenido de Inicio promete cosas que el producto aún no hace** ("traduce en tiempo real", "frases de hasta 5 palabras"). Además "hasta 5 palabras" contradice el plan actual (vocabulario abierto de `n` señas). Reescribir con Snt para que refleje el estado real.
+- [ ] Mover "Entrenamiento" fuera del menú público (o protegerlo): es una herramienta interna de captura, no algo para el usuario final.
+- [ ] Guardar el lote de muestras en IndexedDB mientras no exista `POST /muestras`: hoy recargar la página pierde todas las muestras no descargadas.
+- [ ] Confirmación antes de "Borrar última muestra" o botón de deshacer.
 
-- [ ] Seguir `.claude/plan-implementacion.md` — los pendientes de modelo/backend de la sesión 33 quedan sustituidos por ese documento.
-- [ ] Completar `.gitignore`: hecho `model/.gitignore` (`data/`, `artefactos/`, `__pycache__/`); falta `back/data/`, `*.pt`, `*.onnx`, `*.npz`, `*.sqlite`.
-- [ ] Decidir si el botón "Enviar" dispara el reentrenamiento (opción A del plan) o si queda como acción de administración aparte (opción B).
-
-- [ ] **Decisión pendiente de Snt:** destino de despliegue — Cloud Run+GCS+Firestore vs `e2-micro`+SQLite vs VPS externo. Determina el motor de BD y si el entrenamiento corre en el servidor o en el PC de Snt con CUDA.
-- [ ] Nunca promover automáticamente un modelo con métricas peores que el activo (guardrail del job de entrenamiento) y conservar el artefacto anterior para rollback.
-- [ ] Escritura atómica del artefacto de modelo (escribir en temporal + `rename`) para que `/predecir` nunca lea una carpeta a medio escribir.
-
-### Modelo / backend (definido en sesión 33, por implementar)
-- [ ] **Fase 0 — contrato de datos:** fijar el esquema de una muestra (T frames × 126 features, normalización relativa a la muñeca + escala de la mano, `preprocess_version`) y escribirlo una sola vez para reusarlo en front y back.
-- [ ] **Fase 1 — captura local:** en `Entrenamiento`, bucle de `handLandmarker` → buffer de frames → botón de grabar ventana → exportar JSON a disco (todavía sin backend). Grabar 5 señas × 30-40 muestras, más una clase "reposo".
-- [ ] **Fase 2 — baseline sin entrenar:** DTW + k-NN en un script de `model/` para medir si las clases son separables antes de entrenar nada.
-- [ ] **Fase 3 — modelo PyTorch:** GRU/1D-CNN pequeño + `train.py` + augmentación (ruido, escala temporal, espejo) + evaluación con split por sesión de grabación (no aleatorio) + matriz de confusión y métricas guardadas.
-- [ ] **Fase 4 — API de inferencia:** `POST /muestras` y `POST /predecir` en FastAPI, artefacto con `manifest.json` (pesos + mapa de etiquetas + versión de preprocesado + métricas), SQLite en disco persistente.
-- [ ] **Fase 5 — reentrenamiento en caliente:** `POST /entrenamientos` como job asíncrono + `GET /entrenamientos/{id}` para poll desde el front; puntero de modelo "activo" con rollback.
-- [ ] **Fase 6 — despliegue:** front estático (Vercel/Cloudflare Pages) + back en contenedor con volumen; decidir VPS vs PaaS.
-- [ ] **Seguridad:** proteger `/muestras` y `/entrenamientos` con secreto/token — abiertos a internet permiten envenenar el dataset.
-- [ ] **Idea futura:** encoder + prototipos (few-shot) para dar de alta una seña sin reentrenar, y/o exportar a ONNX para inferir en el navegador y dejar el backend sólo para entrenamiento.
-
-- [ ] Implementar la logica real de `handleEntrenar`/`handleEnviar` (Entrenamiento) y `handleTraducir` (Traduccion): conectar la captura de muestras y el reconocimiento via `handLandmarker.js` con el backend.
-- [ ] Probar `CameraFeed` con acceso real a camara (fuera de la vista previa embebida, que bloquea `getUserMedia`) para confirmar el video en vivo, en ambas paginas.
-- [ ] Definir el formato/contrato de la respuesta del backend para pintar la traduccion real en la caja de `Traduccion.jsx` (por ahora es un placeholder de texto).
-- [ ] Si más adelante se agregan assets reales de manos/señas, reemplazar los emojis de `IntroSplash.jsx` (`SENAS`) por esos assets.
-- [ ] Revisar la intro en pantallas muy angostas (el docking usa `left: 1.5rem` / `sm:2.5rem`, igual que el header real, pero vale la pena confirmarlo en dispositivo).
-- [ ] Snt sigue con los "Verificar" pendientes de `.informacion-homepage.md` para afinar el contenido si hace falta (aunque ya está aplicado).
-- [ ] Integrar en `App.jsx`: 3 secciones separadas (ya no una sola tarjeta "Que es?"), cada una con su propia burbuja de información mostrando el texto "Detalle".
-- [ ] **No hay router** (`react-router-dom` no está instalado). Los enlaces del burger menu ("Inicio" → `/`, "Traductor" → `/traduccion`) son visuales; al no existir rutas reales, no navegan entre `App.jsx` y `Traduccion.jsx` como páginas SPA. Falta decidir e instalar un router para conectarlas de verdad.
-- [ ] `Sidebar.jsx` sigue vacío y sin usar — con el burger menu ya implementado, probablemente se pueda eliminar; a confirmar.
-- [ ] `Button.jsx` tiene variantes (`primary`, `sidebar`, `burble`, `stop`, `default`) declaradas pero sin estilos ni uso real — unificarlo con la paleta nueva.
-- [ ] Extraer estilos repetidos de botones a `Button.jsx` en vez de clases sueltas en `App.jsx`.
-- [ ] Contraste de accesibilidad: revisar `secondary` con texto oscuro en fondos claros.
-- [ ] `.claude/launch.json` se había borrado del repo; lo recreé solo para poder previsualizar con el navegador embebido — confirmar si se quiere versionado o no.
+### 🟡 Técnica
+- [ ] (Baja) Construir y probar la imagen Docker del front (Node 24 + pnpm 11 + nginx nuevo).
+- [ ] (Baja) Auditar versiones de dependencias del front y del modelo (regla 1).
+- [ ] (Baja) Ver la intro en una ventana limpia tras pasar sus duraciones a variables CSS.
+- [ ] Fase 2 del plan: `model/scripts/inspeccionar.py` y grabación del dataset.
+- [ ] Fase 5: backend (`POST /muestras`, `GET /modelos/activo`) con la estructura por capas descrita en `back/README.md`.
+- [ ] Tests de componentes/hooks de React (`@testing-library/react` + `jsdom`): hoy solo se prueba lógica pura.
+- [ ] CI con GitHub Actions: `pnpm lint && pnpm test && pnpm build` y `pytest -m "not torch"` en cada PR.
+- [ ] `senas-persona3.jpg` pesa 940 KB: convertir a WebP/AVIF.
+- [ ] Contraste de accesibilidad: revisar `secondary` con texto oscuro en fondos claros y el `placeholder` en `brand`.
+- [ ] Unificar idioma de los nombres de componentes (hoy conviven `CameraFeed`/`Button` con `ContadorDeMuestras`).
+- [ ] Revisar la intro en pantallas muy angostas (docking con `left: 1.5rem`).
+- [ ] Si llegan assets reales de manos/señas, reemplazar los emojis de `IntroSplash`.
+- [ ] Nunca promover un modelo con métricas peores que el activo y escribir el artefacto de forma atómica (temporal + `rename`) — Fase 7.
+- [ ] Proteger `/muestras` y `/entrenamientos` con token — Fase 8.
 
 ## Ideas futuras (bajo prioridad)
 - [ ] Modo "sistema" explícito (además de claro/oscuro) en el toggle.

@@ -26,7 +26,6 @@ from ..dominio.contrato import (
     F,
     IDX_MUNECA,
     IDX_NUDILLO_MEDIO,
-    VALORES_POR_MANO,
 )
 
 
@@ -76,8 +75,7 @@ class Normalizacion(nn.Module):
             dim=-1,
         )                                          # (B, T, 2, 64)
 
-        # La mano ausente sale en ceros exactos, pase lo que pase con su relleno:
-        # sin esta mascara, una escala 0 clampeada dejaria basura en la forma.
+        # 🧹 Mascara: la mano ausente sale en ceros exactos aunque su escala clampeada deje basura
         bloques = bloques * presencia.unsqueeze(-1)
 
         b, t = bloques.shape[0], bloques.shape[1]
@@ -95,5 +93,4 @@ __all__ = [
     "forma_relativa",
     "NOMBRES_ENTRADA",
     "NOMBRE_SALIDA",
-    "VALORES_POR_MANO",
 ]

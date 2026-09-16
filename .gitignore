@@ -29,3 +29,18 @@ pnpm-debug.log*
 Thumbs.db
 *.suo
 *.sw?
+
+# Python (entornos virtuales y cachés)
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Artefactos y datos derivados del modelo: se reconstruyen, no se versionan
+*.pt
+*.onnx
+*.npz
+*.sqlite
+*.db
+back/data/

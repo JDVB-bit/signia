@@ -1,12 +1,15 @@
-FROM node:20-alpine AS builder 
+# 🏗️ Etapa 1: compila la SPA con la misma versión de pnpm que fija package.json
+FROM node:24-alpine AS compilacion
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@latest --activate 
-COPY package.json pnpm-lock.yaml* package-lock.json* ./ 
-RUN pnpm install --frozen-lockfile || npm ci
-COPY . . 
-RUN pnpm run build || npm run build 
-FROM nginx:alpine 
+RUN corepack enable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm run build
+
+# 🚀 Etapa 2: sirve solo los estáticos compilados con nginx
+FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=compilacion /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

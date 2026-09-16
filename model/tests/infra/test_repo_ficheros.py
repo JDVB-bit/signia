@@ -7,11 +7,9 @@ import pytest
 from signia_modelo.dominio.contrato import TIPO_AISLADA, TIPO_FRASE
 from signia_modelo.dominio.errores import ErrorDeContrato
 from signia_modelo.dominio.puertos import EscritorMuestras, LectorMuestras, RepositorioMuestras
-from signia_modelo.infra.repo_ficheros import (
-    ENV_DATOS_DIR,
-    RepositorioMuestrasEnDisco,
-    sanear,
-)
+from signia_modelo.infra.configuracion_datos import ENV_DATOS_DIR
+from signia_modelo.infra.nombres_de_ruta import sanear
+from signia_modelo.infra.repo_ficheros import RepositorioMuestrasEnDisco
 from tests import factorias
 
 
