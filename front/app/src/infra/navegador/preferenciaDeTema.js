@@ -1,19 +1,37 @@
-export const THEME_STORAGE_KEY = 'signia-theme'
+/** 🌗 Preferencia de tema claro/oscuro: se lee, se guarda y se aplica al documento. */
 
-/** Calcula si el tema oscuro deberia estar activo (preferencia guardada,
- * o si no hay ninguna, la preferencia del sistema). */
-export function calcularTemaOscuro() {
+import { guardarLocal, leerLocal } from './almacenamientoSeguro.js'
+
+// Se conserva la clave historica para no perder la preferencia de quien ya la eligio
+const CLAVE_TEMA = 'signia-theme'
+const VALOR_OSCURO = 'dark'
+const VALOR_CLARO = 'light'
+
+/** Clase que activa la paleta oscura en `index.css`. */
+const CLASE_TEMA_OSCURO = 'dark'
+const CONSULTA_SISTEMA_OSCURO = '(prefers-color-scheme: dark)'
+
+/** ¿Debe arrancar en oscuro? La eleccion guardada gana a la del sistema operativo. */
+export function temaOscuroPreferido() {
+    const guardado = leerLocal(CLAVE_TEMA)
+    if (guardado) return guardado === VALOR_OSCURO
     if (typeof window === 'undefined') return false
-    const guardado = localStorage.getItem(THEME_STORAGE_KEY)
-    if (guardado) return guardado === 'dark'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+    return window.matchMedia?.(CONSULTA_SISTEMA_OSCURO).matches ?? false
 }
 
-/** Aplica la clase .dark al <html> ANTES de que se monte cualquier
- * componente, para que la pantalla de carga (y todo lo demas) ya nazca
- * con los colores correctos del tema, sin parpadeos. */
+/** Recuerda la eleccion del usuario para la proxima visita. */
+export function guardarTemaOscuro(oscuro) {
+    guardarLocal(CLAVE_TEMA, oscuro ? VALOR_OSCURO : VALOR_CLARO)
+}
+
+/** Aplica (o quita) la paleta oscura en <html>. */
+export function aplicarTemaOscuro(oscuro) {
+    document.documentElement.classList.toggle(CLASE_TEMA_OSCURO, oscuro)
+}
+
+/** Se llama antes de montar React para que nada nazca con los colores equivocados. */
 export function aplicarTemaInicial() {
-    const oscuro = calcularTemaOscuro()
-    document.documentElement.classList.toggle('dark', oscuro)
+    const oscuro = temaOscuroPreferido()
+    aplicarTemaOscuro(oscuro)
     return oscuro
 }

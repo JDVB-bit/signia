@@ -1,23 +1,21 @@
-import { useEffect, useState } from 'react'
-import { THEME_STORAGE_KEY, calcularTemaOscuro } from '../../../infra/navegador/preferenciaDeTema'
+import useTema from '../../hooks/useTema'
 
+const ICONO_PASAR_A_CLARO = '☀️'
+const ICONO_PASAR_A_OSCURO = '🌙'
+
+/** Boton del header que alterna la paleta clara/oscura (el icono muestra a cual se pasa). */
 export default function ThemeToggle() {
-    const [dark, setDark] = useState(calcularTemaOscuro)
-
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', dark)
-        localStorage.setItem(THEME_STORAGE_KEY, dark ? 'dark' : 'light')
-    }, [dark])
+    const { oscuro, alternarTema } = useTema()
 
     return (
         <button
             type="button"
-            onClick={() => setDark((prev) => !prev)}
-            aria-pressed={dark}
+            onClick={alternarTema}
+            aria-pressed={oscuro}
             aria-label="Cambiar paleta de colores"
             className="rounded-full px-4 py-2 text-sm font-medium text-secondary transition-opacity hover:opacity-80"
         >
-            {dark ? '☀️' : '🌙'}
+            {oscuro ? ICONO_PASAR_A_CLARO : ICONO_PASAR_A_OSCURO}
         </button>
     )
 }
