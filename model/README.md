@@ -1,43 +1,63 @@
-# `model/` — etapa 1 de SignIA
+# 🧠 `model/` — Etapa 1 de SignIA: señas → glosas
 
-Convierte **senas** (landmarks de MediaPipe) en **glosas**. No redacta espanol:
-eso es la etapa 2 (LLM en el backend, Fase 6b del plan).
+Convierte **landmarks de MediaPipe** en **glosas** (palabras sueltas en orden LSE). No redacta español: eso es la etapa 2 (LLM en el backend).
 
-El plan completo esta en `.claude/plan-implementacion.md`. El contrato de datos,
-que es lo que fija todo lo demas, en [`contrato.md`](contrato.md).
+📜 El contrato de datos, que fija todo lo demás: [`contrato.md`](contrato.md).
+🗺️ El plan completo: [`.claude/plan-implementacion.md`](../.claude/plan-implementacion.md).
 
-## Estructura
+## 📁 Contenido
+
+| Elemento | Qué es |
+|---|---|
+| [`signia_modelo/`](signia_modelo/) | El paquete Python, en capas de Clean Architecture |
+| [`tests/`](tests/) | Suite de pytest (164 tests) y fixtures de conformidad JS ↔ Python |
+| [`scripts/`](scripts/) | Utilidades de línea de comandos |
+| `contrato.md` | Formato de las muestras, remuestreo, tensor y features |
+| `pyproject.toml` | Paquete instalable + configuración de pytest y sus marcadores |
+| `requirements.txt` | Dependencias fijadas (torch con CUDA 13, ONNX, pytest...) |
+| `.gitignore` | Ignora `data/`, `artefactos/` y cachés |
+
+## 🏛️ Capas
 
 ```
 signia_modelo/
-  dominio/       entidades, constantes del contrato y puertos   (python puro)
-  aplicacion/    remuestreo y construccion del tensor crudo     (numpy)
-  infra/         JSON, disco, torch/ONNX                        (frameworks)
+  dominio/       entidades, contrato y puertos       (python puro)
+  aplicacion/    remuestreo y tensor crudo            (numpy)
+  infra/         JSON, disco, torch/ONNX              (frameworks)
 ```
 
-La regla es una sola: **las capas de dentro no importan nada de las de fuera**.
-El dominio no sabe que existen los ficheros, ni torch, ni la API. Cambiar disco
-por almacenamiento en nube, o torch por otra cosa, es escribir otro adaptador en
-`infra/` sin tocar el resto.
+**Las capas de dentro no importan nada de las de fuera.** Cambiar disco por la nube o torch por otra cosa es escribir otro adaptador en `infra/`.
 
-## Uso
+## ▶️ Uso
 
 ```bash
-# tests (todo el paquete)
+# instalar (Windows)
+python -m venv venv
+venv/Scripts/pip install -r requirements.txt
+
+# todos los tests
 venv/Scripts/python -m pytest
 
-# solo lo que no necesita torch
+# solo lo que no necesita torch (~3 s)
 venv/Scripts/python -m pytest -m "not torch"
 
 # regenerar los fixtures de conformidad JS <-> Python
 venv/Scripts/python scripts/generar_fixtures.py
 ```
 
-## Estado
+```python
+from signia_modelo.aplicacion.preprocess import construir_entrada
+from signia_modelo.infra.repo_ficheros import RepositorioMuestrasEnDisco
 
-- [x] **Fase 0** — contrato, remuestreo, tensor crudo, normalizacion en el grafo
-      ONNX, repositorio del dataset y suite de tests.
+repo = RepositorioMuestrasEnDisco()            # usa DATOS_DIR o ./data
+for muestra in repo.listar(tipo="aislada"):
+    entrada = construir_entrada(muestra)       # lm (48,2,21,3) + presencia (48,2)
+```
+
+## 📈 Estado
+
+- [x] **Fase 0** — contrato, remuestreo, tensor crudo, normalización en el grafo ONNX, repositorio y tests.
 - [x] **Fase 1** — captura en el front (`front/app/src/`, capas dominio/aplicacion/infra/presentacion).
-- [ ] Fase 2 — dataset (aisladas + `reposo` + frases de evaluacion).
+- [ ] Fase 2 — dataset (aisladas + `reposo` + frases de evaluación).
 - [ ] Fase 3 — baseline DTW.
 - [ ] Fase 4 — modelo, WER por frase y artefacto.
