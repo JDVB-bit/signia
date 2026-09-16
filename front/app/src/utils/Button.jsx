@@ -18,11 +18,11 @@ const SIZE_STYLES = {
     lg: 'px-[2.2rem] py-[1.1rem] text-[1.1rem]',
 }
 
-function Button({ children, variant = "default", size = "default", onClick }) {
-    const className = `rounded-md font-semibold transition-opacity hover:opacity-90 ${SIZE_STYLES[size]} ${COLOR_STYLES[variant]}`
+function Button({ children, variant = "default", size = "default", onClick, disabled = false }) {
+    const className = `rounded-md font-semibold transition-opacity ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:opacity-90'} ${SIZE_STYLES[size]} ${COLOR_STYLES[variant]}`
 
     return (
-        <button className={className} onClick={onClick}>
+        <button type="button" className={className} onClick={onClick} disabled={disabled}>
             {variant === 'sidebar' ? (
                 <span className=''></span>
             ) : (

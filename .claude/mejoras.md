@@ -243,6 +243,19 @@
 - [x] **164 tests con pytest, todos en verde** (`pytest -m "not torch"` deja 138 que corren sin torch en ~3 s). Cubren: validación de entidades, remuestreo y sus bordes, ranuras/presencia del tensor, inyección del remuestreador (DIP), round-trip JSON, saneado de rutas (la etiqueta viene del usuario y acaba siendo carpeta), invariancias de la normalización y paridad ONNX.
 - [x] `model/pyproject.toml` (paquete instalable + config de pytest con marcadores `torch`/`onnx`), `model/README.md`, `model/.gitignore` (`data/`, `artefactos/`, `__pycache__/`) y `requirements.txt` con `onnx`/`onnxscript`/`onnxruntime`/`pytest` fijados.
 
+## Hecho (sesión 40) — Fase 1: captura de muestras en el front
+
+- [x] **`src/lib/preprocess.js`** — el gemelo en JS del preprocesado de Python: los mismos 48 índices, la misma regla para dos manos del mismo lado y el mismo redondeo (`Math.round` == `int(x+0.5)`). Devuelve arrays planos, que es lo que espera `ort.Tensor` en la Fase 6.
+- [x] **Test de conformidad JS ↔ Python** (`src/lib/__tests__/conformidad.test.js`): lee los MISMOS fixtures que verifica pytest y compara índices, presencia y landmarks a 1e-5. Comprobado que la red tiene dientes: cambiar `Math.round` por `Math.floor` tumba 8 tests. **Esto cierra la Fase 0.**
+- [x] **`src/lib/muestras.js`** — toda la lógica que se puede probar sin cámara: `frameDesdeResultado` (MediaPipe → frame del contrato), `crearMuestra`, `motivoDeDescarte`, `debeCerrarPorTiempo`, `nombreDeFichero`. El hook solo orquesta.
+- [x] **`src/lib/dibujarMano.js`** — overlay del esqueleto sobre el vídeo, con las 21 conexiones, un color por mano y **el rótulo del lado junto a la muñeca**. Ese rótulo es la verificación empírica del handedness que pedía el plan, convertida en una comprobación de 10 segundos.
+- [x] **`src/lib/useCapturaSenas.js`** — el bucle: `requestAnimationFrame` → `detectForVideo` → buffer → muestra. API `{ grabando, alternarGrabacion, muestras, borrarUltima, exportar }` + estado, segundos y avisos. Tope de 4 s por grabación.
+- [x] **Se descarta la grabación si la pestaña se oculta.** Descubierto probando: el navegador congela `requestAnimationFrame` en una pestaña oculta, y al volver el contador ya había pasado el tope y cerraba una muestra con cuatro frames sueltos. Además, una seña que no se estaba mirando no es dato bueno.
+- [x] **`CameraFeed`** acepta ahora una `ref` externa al `<video>`, una capa de overlay (`children`) y `resaltado` para el borde mientras graba, sin romper su uso anterior en `Traduccion`.
+- [x] **`Entrenamiento.jsx` conectado de verdad:** "Entrenar" graba una muestra (pulsar/pulsar), el contador sube, "Enviar" descarga el JSON del lote, "Borrar ultima muestra" deshace. Indicadores de manos detectadas, segundos grabando y sesión.
+- [x] `Button.jsx` acepta `disabled` (y `type="button"`), para que Entrenar/Enviar se apaguen cuando no hay cámara o no hay muestras.
+- [x] **93 tests de vitest en verde** + los 164 de pytest. Verificado además en el navegador con una cámara falsa (un canvas con una foto de manos reales): MediaPipe detecta, el esqueleto se dibuja alineado con el vídeo espejado, el contador sube y el JSON exportado **pasa el validador del contrato en Python y llega hasta las features `(1, 48, 128)` sin NaN**.
+
 ## Pendiente / próximos pasos
 - [ ] Elegir el proveedor/modelo de la etapa 2 y escribir el prompt de `dominio/prompt.py` (vocabulario disponible + que la entrada son glosas de LSE + formato de salida).
 

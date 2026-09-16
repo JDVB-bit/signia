@@ -9,8 +9,18 @@ export const CAMERA_PERMISO_KEY = 'signia-camera-permiso'
  * mostrarle el boton de nuevo; se olvida solo al cerrar la pestaña, asi que
  * en una visita nueva siempre vuelve a pedirse con el boton. El permiso
  * real lo sigue controlando el navegador. */
-export default function CameraFeed({ className = '', mirrored = true }) {
-    const videoRef = useRef(null)
+export default function CameraFeed({
+    className = '',
+    mirrored = true,
+    videoRef: videoRefExterno = null,
+    onEstado = null,
+    resaltado = false,
+    children = null,
+}) {
+    const videoRefInterno = useRef(null)
+    // Quien necesite el <video> (el bucle de captura) pasa su propia ref; si
+    // no, el componente usa la suya y se comporta como antes.
+    const videoRef = videoRefExterno ?? videoRefInterno
     const streamRef = useRef(null)
     const [estado, setEstado] = useState('inicial') // inicial | solicitando | activa | denegada | no-soportada
 
@@ -40,9 +50,13 @@ export default function CameraFeed({ className = '', mirrored = true }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    useEffect(() => {
+        onEstado?.(estado)
+    }, [estado, onEstado])
+
     return (
         <div
-            className={`relative flex items-center justify-center overflow-hidden rounded-lg bg-surface ${className}`}
+            className={`relative flex items-center justify-center overflow-hidden rounded-lg bg-surface transition-shadow ${resaltado ? 'ring-4 ring-secondary' : ''} ${className}`}
         >
             <video
                 ref={videoRef}
@@ -51,6 +65,12 @@ export default function CameraFeed({ className = '', mirrored = true }) {
                 muted
                 className={`h-full w-full object-cover ${mirrored ? '-scale-x-100' : ''} ${estado === 'activa' ? '' : 'hidden'}`}
             />
+
+            {/* Capa para pintar encima del video (el esqueleto de la mano).
+                No intercepta clicks: el video sigue siendo el que manda. */}
+            {estado === 'activa' && children && (
+                <div className="pointer-events-none absolute inset-0">{children}</div>
+            )}
 
             {estado !== 'activa' && (
                 <div className="flex flex-col items-center gap-3 p-6 text-center">

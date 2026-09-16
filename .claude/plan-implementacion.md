@@ -226,14 +226,18 @@ haber escrito una línea de API.
   acumuladas. En la Fase 6 pasará a llamar al endpoint.
 
 ### Pendiente de esta fase
-- [ ] Feedback visual mientras graba (borde de la cámara en `secondary`,
+- [x] Feedback visual mientras graba (borde de la cámara en `secondary`,
       contador de segundos) — Claude hace los estilos.
-- [ ] **Overlay del esqueleto de la mano sobre el vídeo** (canvas). Muy
+- [x] **Overlay del esqueleto de la mano sobre el vídeo** (canvas). Muy
       recomendado: permite descartar muestras malas antes de guardarlas, y en la
       Fase 2 vas a grabar cientos.
 - [ ] **Verificar el handedness con el vídeo espejado.** Si el `lado` que reporta
       MediaPipe está invertido respecto a lo que ves y lo descubres con 300
       muestras grabadas, hay que parchear o regrabar el dataset entero.
+      **Ya es una comprobación de 10 segundos:** el overlay rotula junto a la
+      muñeca el lado que reporta MediaPipe. Levanta la mano derecha delante de
+      la cámara y lee el rótulo; si dice "izquierda", pon `INVERTIR_LADO = true`
+      en `front/app/src/lib/muestras.js` **antes** de grabar el dataset.
 
 **Hecho cuando:** se graban 3 muestras seguidas, el contador sube a 3, y "Enviar"
 descarga un JSON con 3 secuencias de landmarks plausibles.
