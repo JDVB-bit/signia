@@ -37,7 +37,7 @@ venv/Scripts/python scripts/generar_fixtures.py
 
 - [x] **Fase 0** — contrato, remuestreo, tensor crudo, normalizacion en el grafo
       ONNX, repositorio del dataset y suite de tests.
-- [x] **Fase 1** — captura en el front (`front/app/src/lib/`).
+- [x] **Fase 1** — captura en el front (`front/app/src/`, capas dominio/aplicacion/infra/presentacion).
 - [ ] Fase 2 — dataset (aisladas + `reposo` + frases de evaluacion).
 - [ ] Fase 3 — baseline DTW.
 - [ ] Fase 4 — modelo, WER por frase y artefacto.

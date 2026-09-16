@@ -1,7 +1,7 @@
 """Genera los fixtures de conformidad JS <-> Python (Fase 0).
 
 Cada fixture lleva una muestra cruda y el tensor que Python produce a partir de
-ella. El test de JS (`front/app/src/lib/__tests__/`) leera estos mismos ficheros
+ella. El test de JS (`front/app/src/aplicacion/__tests__/conformidad.test.js`) leera estos mismos ficheros
 y comprobara que su remuestreo coincide a 1e-5. Es la red que impide que el
 navegador y el entrenamiento acaben viendo tensores distintos.
 

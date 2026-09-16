@@ -11,15 +11,11 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-import {
-    N_DIMS,
-    N_LANDMARKS,
-    N_MANOS,
-    T,
-    construirEntrada,
-    indicesRemuestreo,
-} from '../preprocess.js'
+import { N_DIMS, N_LANDMARKS, N_MANOS, T } from '../../dominio/contrato.js'
+import { construirEntrada } from '../construirEntrada.js'
+import { indicesRemuestreo } from '../remuestreo.js'
 
+// De src/aplicacion/__tests__/ a la raiz del repo hay cinco niveles
 const CARPETA = fileURLToPath(new URL('../../../../../model/tests/fixtures/', import.meta.url))
 const TOLERANCIA = 1e-5
 

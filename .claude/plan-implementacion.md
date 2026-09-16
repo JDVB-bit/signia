@@ -185,7 +185,7 @@ entrenamiento y en el navegador.
 
 ### Test de conformidad (obligatorio)
 `model/tests/fixtures/` con N muestras crudas y sus tensores esperados generados
-por Python. Un test en JS (`front/app/src/lib/__tests__/`) comprueba que el
+por Python. Un test en JS (`front/app/src/aplicacion/__tests__/conformidad.test.js`) comprueba que el
 remuestreo JS coincide con el de Python a 1e-5. Es la red que impide la deriva.
 
 ### Decisiones tomadas
@@ -208,7 +208,7 @@ secuencias más cortas y más largas que 48 frames.
 haber escrito una línea de API.
 
 ### Ficheros
-- `front/app/src/lib/useCapturaSenas.js` — hook nuevo.
+- `front/app/src/presentacion/hooks/useCapturaSenas.js` — hook que compone detector, bucle y grabación.
 - `front/app/src/utils/CameraFeed.jsx` — extender para exponer el `<video>`.
 - `front/app/src/pages/Entrenamiento.jsx` — conectar botones.
 
@@ -237,7 +237,7 @@ haber escrito una línea de API.
       **Ya es una comprobación de 10 segundos:** el overlay rotula junto a la
       muñeca el lado que reporta MediaPipe. Levanta la mano derecha delante de
       la cámara y lee el rótulo; si dice "izquierda", pon `INVERTIR_LADO = true`
-      en `front/app/src/lib/muestras.js` **antes** de grabar el dataset.
+      en `front/app/src/infra/mediapipe/ladoDesdeCategoria.js` **antes** de grabar el dataset.
 
 **Hecho cuando:** se graban 3 muestras seguidas, el contador sube a 3, y "Enviar"
 descarga un JSON con 3 secuencias de landmarks plausibles.
@@ -491,9 +491,9 @@ ser el cuello de botella. A cambio, los pesos viajan al cliente — irrelevante 
 este proyecto.
 
 ### Ficheros
-- `front/app/src/lib/modeloOnnx.js` — carga el `.onnx` + `labels` + `umbrales`,
+- `front/app/src/infra/onnx/modeloOnnx.js` — carga el `.onnx` + `labels` + `umbrales`,
   cachea en IndexedDB, comprueba versión contra `/modelos/activo`.
-- `front/app/src/lib/useReconocimientoContinuo.js` — el hook del pipeline.
+- `front/app/src/presentacion/hooks/useReconocimientoContinuo.js` — el hook del pipeline.
 - `front/app/src/pages/Traduccion.jsx` — UI de transcripción en vivo.
 
 ### El pipeline de consolidación

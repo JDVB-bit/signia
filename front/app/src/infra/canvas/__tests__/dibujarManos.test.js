@@ -1,8 +1,8 @@
 /** El overlay del esqueleto, probado con un canvas de mentira. */
 import { describe, expect, it, vi } from 'vitest'
 
-import { N_LANDMARKS } from '../preprocess.js'
-import { CONEXIONES, COLOR_POR_LADO, dibujarManos, puntoEnCanvas } from '../dibujarMano.js'
+import { N_LANDMARKS } from '../../../dominio/contrato.js'
+import { CONEXIONES, COLOR_POR_LADO, dibujarManos, puntoEnCanvas } from '../dibujarManos.js'
 
 const lm = (n = N_LANDMARKS) => Array.from({ length: n }, (_, i) => [i / 100, i / 200, 0])
 const mano = (lado = 'derecha') => ({ lado, score: 0.9, lm: lm() })

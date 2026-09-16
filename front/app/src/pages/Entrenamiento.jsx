@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react"
 import PageLayout from "../utils/PageLayout"
 import CameraFeed from "../utils/CameraFeed"
 import Button from "../utils/Button"
-import useCapturaSenas from "../lib/useCapturaSenas"
+import useCapturaSenas from "../presentacion/hooks/useCapturaSenas"
 
 /** Modo AISLADO: el camino de captura de dato para entrenar (Fase 1 del plan).
  *
