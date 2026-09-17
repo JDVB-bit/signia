@@ -294,6 +294,7 @@ Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits,
 - [ ] Confirmación antes de "Borrar última muestra" o botón de deshacer.
 
 ### 🟡 Técnica
+- [ ] **Test de contrato cruzado JS ↔ Python — al empezar la Fase 2** (acordado con Snt). Hoy la conformidad solo detecta divergencias que cambian el **tensor**: si alguien toca `SCHEMA`, `IDX_MUNECA` o `N_MANOS` en un solo lado, nadie se entera hasta mucho después. Un test que lea `model/signia_modelo/dominio/contrato.py` como texto (o un JSON generado por `scripts/`) y lo compare con `front/app/src/dominio/contrato.js` cierra ese hueco. Hacerlo **antes** de grabar el dataset: después, una divergencia ya habría contaminado muestras.
 - [ ] (Baja) Construir y probar la imagen Docker del front (Node 24 + pnpm 11 + nginx nuevo).
 - [ ] (Baja) Auditar versiones de dependencias del front y del modelo (regla 1).
 - [ ] (Baja) Ver la intro en una ventana limpia tras pasar sus duraciones a variables CSS.
