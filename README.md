@@ -107,10 +107,10 @@ Detalle en [`.claude/claude.md`](.claude/claude.md) y [`.claude/rules.md`](.clau
 | `model/signia_modelo/dominio/` | Constantes del contrato, entidades inmutables y puertos |
 | `model/signia_modelo/aplicacion/` | Remuestreo y construcción del tensor |
 | `model/signia_modelo/infra/` | JSON, dataset en disco, normalización torch y ONNX |
-| `model/tests/` | 164 tests, incluidos los fixtures de conformidad |
+| `model/tests/` | 187 tests, incluidos los fixtures de conformidad |
 
-**Estado de los tests:** 105 en el front (Vitest) y 164 en el modelo (pytest;
-138 sin torch).
+**Estado de los tests:** 138 en el front (Vitest) y 187 en el modelo (pytest;
+161 sin torch).
 
 ---
 

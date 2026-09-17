@@ -2,11 +2,12 @@
 
 ## 📖 Introducción
 
-**164 tests** que cubren el paquete entero. La carpeta refleja las capas del
-código: una subcarpeta por capa, más el test de conformidad y los fixtures que
-comparte con el front.
+**187 tests** que cubren el paquete entero. La carpeta refleja las capas del
+código: una subcarpeta por capa, más los dos tests que vigilan la frontera con
+el front (conformidad de tensores y contrato exportado) y los fixtures que
+comparten.
 
-138 de esos tests **no necesitan torch**: se pueden ejecutar en cualquier equipo
+161 de esos tests **no necesitan torch**: se pueden ejecutar en cualquier equipo
 en unos segundos.
 
 ---
@@ -20,6 +21,7 @@ en unos segundos.
 | [`infra/`](infra/) | 🔌 JSON, ficheros, rutas, normalización y ONNX (72 tests) |
 | [`fixtures/`](fixtures/) | 📎 Casos compartidos con el test de conformidad de JS |
 | `test_conformidad.py` | 🤝 Verifica que los fixtures siguen coincidiendo con el código (33 tests) |
+| `test_contrato_exportado.py` | 📜 Vigila `../contrato.json`: sincronía con `contrato.py` y coherencia entre constantes (23 tests) |
 | `conftest.py` | 🔧 Fixtures comunes (`muestra_aislada`, `muestra_frase`, `repo_vacio`) y `sys.path` |
 | `factorias.py` | 🏭 Fábricas de manos, frames y muestras válidas |
 | `__init__.py` | Hace de `tests` un paquete importable (lo usan las fábricas) |
@@ -78,8 +80,8 @@ JSON sean legibles y exactos en `float32`.
 ### 🏷️ Marcadores para el hardware
 
 ```bash
-pytest                      # los 164
-pytest -m "not torch"       # los 138 que no necesitan torch
+pytest                      # los 187
+pytest -m "not torch"       # los 161 que no necesitan torch
 ```
 
 Los módulos que lo requieren usan `pytest.importorskip("torch")`, así que en un
@@ -122,13 +124,29 @@ por cada fixture: versión del preprocesado, validez de la muestra, índices,
 tensor (a `1e-5`) y forma. Además verifica que **no falta ningún caso** y que el
 generador es reproducible.
 
+### `test_contrato_exportado.py`
+
+La conformidad compara **tensores**, así que no vería un cambio en `SCHEMA`,
+`IDX_MUNECA` o `N_MANOS`: el tensor seguiría siendo idéntico. Este test cubre
+ese hueco en tres bloques:
+
+| Clase | Qué comprueba |
+|---|---|
+| `TestSincronia` | `contrato.json` es exactamente lo que produce el código de hoy |
+| `TestCobertura` | No falta ninguna constante crítica, ni cambió de nombre, ni se exporta un valor distinto al del módulo |
+| `TestCoherenciaInterna` | Las relaciones que el código da por supuestas: `F = VALORES_POR_MANO × N_MANOS`, una ranura por lado canónico, índices dentro de rango, muñeca ≠ nudillo… |
+
+Su pareja en el front es
+`front/app/src/dominio/__tests__/contratoCompartido.test.js`, que lee el mismo
+`contrato.json`.
+
 ---
 
 ## 💡 Ejemplos de uso
 
 ```bash
-venv/Scripts/python -m pytest                        # todo (164 tests)
-venv/Scripts/python -m pytest -m "not torch"         # sin torch (138)
+venv/Scripts/python -m pytest                        # todo (187 tests)
+venv/Scripts/python -m pytest -m "not torch"         # sin torch (161)
 venv/Scripts/python -m pytest tests/infra -k onnx    # un subconjunto
 venv/Scripts/python -m pytest -q --collect-only      # ver qué hay, sin ejecutar
 ```

@@ -66,7 +66,7 @@ presentacion ──► aplicacion ──► dominio
 ```
 
 Nadie apunta hacia afuera. Por eso `dominio/` y `aplicacion/` se prueban en node
-sin simular nada, y los 105 tests del front tardan menos de un segundo.
+sin simular nada, y los 138 tests del front tardan menos de un segundo.
 
 ### 📸 El flujo de la captura, de punta a punta
 
@@ -127,7 +127,7 @@ de carga y todo lo demás nacen ya con los colores correctos.
 
 ```bash
 pnpm dev     # http://localhost:5173
-pnpm test    # 105 tests de dominio, aplicación, infra y textos
+pnpm test    # 138 tests de dominio, aplicación, infra y textos
 pnpm lint    # oxlint
 ```
 

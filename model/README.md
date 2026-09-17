@@ -7,10 +7,11 @@ palabras sueltas, sin conjugar, en el orden de la LSE. No redacta español — e
 es la etapa 2 (un LLM en el backend, Fase 6b).
 
 Hoy están cerradas la **Fase 0** (contrato, preprocesado, normalización ONNX,
-repositorio y tests) y la **Fase 1** (captura en el front). Falta el dataset y el
-modelo entrenado.
+repositorio y tests) y la **Fase 1** (captura en el front). En curso la **Fase 2**
+(dataset): la red de contrato cruzado ya está puesta; falta grabar.
 
-📜 El contrato de datos, que fija todo lo demás: [`contrato.md`](contrato.md).
+📜 El contrato de datos, que fija todo lo demás: [`contrato.md`](contrato.md) en
+prosa y [`contrato.json`](contrato.json) para las máquinas.
 🗺️ El plan completo: [`../.claude/plan-implementacion.md`](../.claude/plan-implementacion.md).
 
 ---
@@ -20,9 +21,10 @@ modelo entrenado.
 | Elemento | Qué es |
 |---|---|
 | [`signia_modelo/`](signia_modelo/) | 📦 El paquete, en capas de Clean Architecture |
-| [`tests/`](tests/) | 🧪 Suite de pytest (164 tests) y fixtures de conformidad JS ↔ Python |
+| [`tests/`](tests/) | 🧪 Suite de pytest (187 tests) y fixtures de conformidad JS ↔ Python |
 | [`scripts/`](scripts/) | 🛠️ Utilidades de línea de comandos |
 | `contrato.md` | 📜 **Fuente de verdad**: formato de las muestras, remuestreo, tensor y features |
+| `contrato.json` | 🤖 Gemelo generado de `contrato.md`: las constantes que el front tiene que declarar igual |
 | `pyproject.toml` | ⚙️ Paquete instalable + configuración de pytest y sus marcadores |
 | `requirements.txt` | 📌 Dependencias fijadas (torch con CUDA 13, ONNX, pytest…) |
 | `.gitignore` | 🚫 Ignora `data/`, `artefactos/` y cachés |
@@ -130,7 +132,7 @@ python -m venv venv
 venv/Scripts/pip install -r requirements.txt
 
 # Tests
-venv/Scripts/python -m pytest                     # 164 tests
+venv/Scripts/python -m pytest                     # 187 tests
 venv/Scripts/python -m pytest -m "not torch"      # 138, sin torch (~3 s)
 
 # Regenerar los fixtures de conformidad JS <-> Python
