@@ -100,7 +100,7 @@ Si tocas el preprocesado **a propósito**, el ciclo completo es:
 ```bash
 cd model
 venv/Scripts/python scripts/generar_fixtures.py     # regenerar la referencia
-venv/Scripts/python -m pytest                       # 187 tests
+venv/Scripts/python -m pytest                       # 351 tests
 cd ../front/app && pnpm test                        # 138 tests
 ```
 

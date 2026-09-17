@@ -3,11 +3,11 @@
 ## 📖 Introducción
 
 Herramientas que se ejecutan a mano, fuera del paquete y fuera de los tests. Hoy
-son dos, y las dos **generan la referencia compartida** con el front: una los
-tensores, la otra las constantes.
+son tres: dos **generan la referencia compartida** con el front (los tensores y
+las constantes) y una **informa del estado del dataset**.
 
-Según avance el plan, aquí vivirán también el inspector del dataset (Fase 2), el
-baseline DTW (Fase 3) y los scripts de entrenamiento y exportación (Fase 4).
+Según avance el plan, aquí vivirán también el baseline DTW (Fase 3) y los
+scripts de entrenamiento y exportación (Fase 4).
 
 ---
 
@@ -17,6 +17,7 @@ baseline DTW (Fase 3) y los scripts de entrenamiento y exportación (Fase 4).
 |---|---|
 | `generar_fixtures.py` | 🔁 Regenera `tests/fixtures/*.json`: las muestras límite y el tensor que produce Python |
 | `exportar_contrato.py` | 📜 Regenera `../contrato.json`: las constantes de `dominio/contrato.py` en formato legible por JS |
+| `inspeccionar.py` | 🔬 Informe del dataset crudo y dibujo de una trayectoria. Es la **puerta de la Fase 2** |
 
 ---
 
@@ -38,6 +39,12 @@ JSON a mano reintroduce justo el error que se quiere evitar.
 Estos dos scripts convierten esa referencia en algo **reproducible**: un
 comando, el mismo resultado.
 
+`inspeccionar.py` resuelve otro problema: **saber si el dataset que se está
+grabando sirve**. Descubrir al entrenar que una clase tiene la mitad de muestras
+que las demás, que todo salió de una sola sesión o que MediaPipe perdió la mano
+en el 40 % de los frames cuesta una tarde de regrabación — y a veces volver a
+convocar a la gente.
+
 ---
 
 ## 🔗 Qué dependencias tiene
@@ -48,6 +55,8 @@ comando, el mismo resultado.
 | `signia_modelo.dominio` | ambos | Las constantes del contrato y las entidades |
 | `signia_modelo.infra.json_contrato` | `generar_fixtures` | Serializar la muestra al formato del contrato |
 | `tests.factorias` | `generar_fixtures` | La mano canónica |
+| `signia_modelo.aplicacion.inspeccion` | `inspeccionar` | Resumir, diagnosticar y sacar la trayectoria |
+| `signia_modelo.infra` | `inspeccionar` | Repositorio en disco, informe de texto y lienzo ASCII |
 
 Reutilizar las fábricas de los tests es deliberado: **la mano de referencia debe
 estar definida en un único sitio**.
@@ -100,6 +109,16 @@ Aparte va la lista `CLAVES_COMPARTIDAS_CON_JS`, que sí es explícita y comentad
 una por una: decir *qué constantes tiene que declarar también el front* es una
 decisión de diseño, no algo que se deduzca del código.
 
+### 🚪 El inspector es una puerta, no un visor
+
+`inspeccionar.py` **devuelve código de salida 1** si queda algún aviso
+bloqueante. Así el mismo comando que se mira a ojo mientras se graba sirve de
+puerta automática cuando haya CI, sin escribir el criterio dos veces.
+
+Con `--etiqueta` la vista es parcial, así que los criterios globales se
+desactivan (y lo dice en el informe): afirmar *"falta reposo"* mirando solo
+`hola` sería un falso bloqueo.
+
 ### 📐 Sin `sys.path` mágico en el paquete
 
 El script inserta la raíz del proyecto en `sys.path` **él mismo**, para poder
@@ -118,6 +137,22 @@ scripts.
 | `fixture(nombre, muestra)` | Construye el dict del fixture: muestra + índices + presencia + `lm` |
 | `main()` | Escribe cada fixture en `tests/fixtures/` e informa por consola |
 | `CARPETA`, `DECIMALES` | Destino (`tests/fixtures`) y precisión (6) |
+
+### `inspeccionar.py`
+
+| Opción | Qué hace |
+|---|---|
+| `--datos RUTA` | Raíz del dataset (por defecto, `DATOS_DIR` o `./data`) |
+| `--etiqueta SENA` | Limita las tablas a una clase y acota el diagnóstico |
+| `--trayectoria SENA` | Dibuja el recorrido de la muñeca de una muestra |
+| `--muestra N` | Cuál dibujar, en el orden alfabético de los ficheros |
+| `--lado izquierda\|derecha` | Qué mano dibujar (por defecto, la que más aparece) |
+
+| Función | Qué hace |
+|---|---|
+| `imprimir_informe(repo, etiqueta)` | Resume, diagnostica, imprime y dice si hay bloqueos |
+| `imprimir_trayectoria(repo, etiqueta, posicion, lado)` | Carga esa muestra y la dibuja |
+| `main()` | Orquesta y traduce `ErrorDeContrato` en un mensaje accionable |
 
 ### `exportar_contrato.py`
 
@@ -177,3 +212,57 @@ cd ../front/app && pnpm test
 > "arreglar" un test en rojo esconde justo el fallo que el test existe para
 > detectar: un tensor distinto entre el navegador y el entrenamiento, o una
 > constante que ya no significa lo mismo en los dos lenguajes.
+
+### Inspeccionar el dataset
+
+```bash
+venv/Scripts/python scripts/inspeccionar.py
+```
+
+Salida (con un dataset a medio grabar):
+
+```
+Dataset SignIA en C:\...\model\data
+
+Senas aisladas (entrenamiento): 3 clases, 84 muestras, 2 sesiones
+  clase        muestras sesiones  frames segundos con mano 2 manos
+  hola               32        2    30.0     1.00      99%       0
+  reposo             40        2    30.9     1.03       0%       0
+  tu                 12        2    30.6     1.02     100%       0
+
+Frases completas (evaluacion, nunca entrenan)
+  frases: 6 | secuencias distintas: 2 | glosas por frase: 2.5 | sesiones: 1
+  glosario usado: hola, tu
+
+Diagnostico (6 avisos)
+  [BLOQUEA ] 'tu' tiene 12 muestras; hacen falta 30.
+  [BLOQUEA ] 'reposo' tiene 40 muestras y deberia tener 64 (el doble de la clase mas poblada): es el separador entre senas.
+  [BLOQUEA ] Hay 6 frases completas; hacen falta 20 para medir WER.
+  [atencion] hola #32 tiene 6 frames; por debajo de 12 el remuestreo repite cada frame y la muestra queda casi estatica.
+  [atencion] hola #32 solo tiene mano detectada en el 17% de los frames (minimo 50%).
+  [atencion] Solo hay 2 secuencias distintas y se esperaban 3: repetir la misma frase no mide la segmentacion.
+```
+
+Y para mirar una muestra concreta con los ojos:
+
+```bash
+venv/Scripts/python scripts/inspeccionar.py --trayectoria hola --muestra 5
+```
+
+```
+Trayectoria de la muneca derecha en 2026-09-20-snt-01-0004.json
+30 frames, mano presente en 30. tiempo: . inicio -> @ final
++------------------------------------------------+
+|                          #@                    |
+|                        *#                      |
+|                      +*                        |
+|                   ==+                          |
+|                 --=                            |
+|               :-                               |
+|             .:                                 |
+|            .                                   |
++------------------------------------------------+
+```
+
+El gradiente de caracteres cuenta el tiempo (`.` primero, `@` último), así que
+se ve **hacia dónde** iba la mano y no solo la forma del trazo.
