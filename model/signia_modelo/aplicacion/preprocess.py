@@ -17,13 +17,13 @@ from typing import NamedTuple, Sequence
 
 import numpy as np
 
-from ..dominio.contrato import N_DIMS, N_LANDMARKS, N_MANOS, T, LADOS_CANONICOS
+from ..dominio.contrato import N_DIMS, N_LANDMARKS, N_MANOS, T
 from ..dominio.entidades import Frame, Lado, Muestra
 from ..dominio.puertos import Remuestreador
 from .remuestreo import REMUESTREADOR_POR_DEFECTO
 
 #: Orden de las ranuras del tensor. Fijo y canonico, nunca el de deteccion.
-RANURAS: tuple[Lado, ...] = tuple(Lado(v) for v in LADOS_CANONICOS)
+RANURAS: tuple[Lado, ...] = Lado.canonicos()
 
 
 class EntradaCruda(NamedTuple):

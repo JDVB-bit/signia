@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 
+from ..contrato import LADOS_CANONICOS
 from ..errores import ErrorDeContrato
 
 
@@ -16,6 +17,15 @@ class Lado(str, Enum):
 
     IZQUIERDA = "izquierda"
     DERECHA = "derecha"
+
+    @classmethod
+    def canonicos(cls) -> tuple["Lado", ...]:
+        """Los lados en el orden de las ranuras del tensor, nunca el de deteccion.
+
+        Vive aqui para que ese orden se escriba una sola vez: lo usan el
+        preprocesado, las metricas del dataset y cualquier recorrido de manos.
+        """
+        return tuple(cls(valor) for valor in LADOS_CANONICOS)
 
     @classmethod
     def desde_texto(cls, valor: str) -> "Lado":
