@@ -3,6 +3,12 @@
 > **Fuente de verdad.** El codigo de `signia_modelo/` implementa este documento;
 > si los dos discrepan, manda este documento y el codigo esta mal.
 > Version del formato: `schema = 1`. Version del preprocesado: `1`.
+>
+> Este documento es la version en **prosa**, para leer. Su gemelo en **JSON**
+> (`model/contrato.json`, generado por `scripts/exportar_contrato.py` desde
+> `dominio/contrato.py`) es el que leen las maquinas: pytest comprueba que esta
+> sincronizado y vitest comprueba que `front/app/src/dominio/contrato.js`
+> declara los mismos valores. Ninguna constante puede cambiar en un solo lado.
 
 Cambiar algo de aqui **no invalida el dataset ya grabado** (se guarda crudo),
 pero **sí obliga a reentrenar** y a tocar el remuestreo de JS a la vez.
@@ -151,11 +157,15 @@ dinámicos: lote y tiempo (compartidos por las dos entradas).
 
 ## 6. Qué rompe qué
 
-| Cambio | Hay que regrabar | Hay que reentrenar | Hay que tocar JS |
-|---|---|---|---|
-| `T`, features, normalización | no | **sí** | sí, si cambia el remuestreo |
-| Añadir una seña al vocabulario | no | sí | no |
-| Formato JSON (`schema`) | no, pero hay que migrar los ficheros | sí | sí |
-| Añadir `PoseLandmarker` | **sí** | sí | sí |
+| Cambio | Hay que regrabar | Hay que reentrenar | Hay que tocar JS | Hay que regenerar `contrato.json` |
+|---|---|---|---|---|
+| `T`, features, normalización | no | **sí** | sí, si cambia el remuestreo | sí |
+| Añadir una seña al vocabulario | no | sí | no | no |
+| Formato JSON (`schema`) | no, pero hay que migrar los ficheros | sí | sí | sí |
+| Añadir `PoseLandmarker` | **sí** | sí | sí | sí |
+
+Cualquier cambio en `dominio/contrato.py` obliga a ejecutar
+`scripts/exportar_contrato.py`: si no, `test_contrato_exportado.py` se pone en
+rojo. Eso es deliberado — es el recordatorio de revisar el lado JS.
 
 Lo único irreversible es **no grabar** algo. Por eso el crudo se guarda entero.

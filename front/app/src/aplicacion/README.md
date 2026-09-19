@@ -21,6 +21,7 @@ de `model/signia_modelo/aplicacion/` en Python.
 | `fpsDeGrabacion.js` | 🎞️ fps reales de una grabación | — |
 | `sesionDeGrabacion.js` | 🗓️ Identificador de la tanda: `AAAA-MM-DD-dispositivo` | — |
 | `paqueteDeMuestras.js` | 📦 Lote exportable + nombre de fichero legible | — |
+| `envioDeMuestras.js` | 📤 Subir el lote y, si el backend no responde, descargarlo como respaldo | — |
 | [`__tests__/`](__tests__/) | 🧪 Tests propios y el de conformidad con Python | — |
 
 ---

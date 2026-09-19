@@ -1,0 +1,40 @@
+{
+  "generado_por": "model/scripts/exportar_contrato.py",
+  "version_preprocesado": "1",
+  "compartidas_con_js": [
+    "SCHEMA",
+    "N_LANDMARKS",
+    "N_DIMS",
+    "N_MANOS",
+    "IDX_MUNECA",
+    "T",
+    "SCORE_MAXIMO",
+    "LADOS_CANONICOS",
+    "TIPO_AISLADA"
+  ],
+  "constantes": {
+    "SCHEMA": 1,
+    "VERSION_PREPROCESADO": "1",
+    "N_LANDMARKS": 21,
+    "N_DIMS": 3,
+    "N_MANOS": 2,
+    "IDX_MUNECA": 0,
+    "IDX_NUDILLO_MEDIO": 9,
+    "SCORE_MINIMO": 0.0,
+    "SCORE_MAXIMO": 1.0,
+    "T": 48,
+    "VALORES_PRESENCIA": 1,
+    "VALORES_POSICION": 2,
+    "VALORES_ESCALA": 1,
+    "VALORES_FORMA": 60,
+    "VALORES_POR_MANO": 64,
+    "F": 128,
+    "EPS_ESCALA": 1e-06,
+    "LADOS_CANONICOS": [
+      "izquierda",
+      "derecha"
+    ],
+    "TIPO_AISLADA": "aislada",
+    "TIPO_FRASE": "frase"
+  }
+}

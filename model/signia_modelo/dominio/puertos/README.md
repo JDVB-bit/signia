@@ -62,7 +62,7 @@ basta con tener el método con la firma correcta.
 ### 🧩 Segregación (ISP)
 
 ```
-LectorMuestras     (listar)
+LectorMuestras     (listar, etiquetas, contar)
 EscritorMuestras   (guardar)
        └── RepositorioMuestras = los dos, para quien necesita ambas mitades
 ```
@@ -97,6 +97,8 @@ está detrás de una interfaz y sometida a un test de conformidad.
 | Puerto | Método | Devuelve |
 |---|---|---|
 | `LectorMuestras` | `listar(*, tipo=None, etiqueta=None)` | `Iterator[Muestra]` |
+| `LectorMuestras` | `etiquetas()` | `list[str]` en orden estable |
+| `LectorMuestras` | `contar()` | `dict[etiqueta, muestras]` |
 | `EscritorMuestras` | `guardar(muestra)` | `str` — identificador estable |
 | `RepositorioMuestras` | ambos | — |
 
@@ -126,3 +128,19 @@ entrada = construir_entrada(muestra, remuestreador=RemuestreadorCentrado())
 > 💡 Para añadir un puerto: un archivo por interfaz, con el nombre de lo que
 > abstrae, y reexportarlo en `__init__.py`. Si un puerto crece con métodos que
 > solo usa un cliente, probablemente sean **dos** puertos.
+
+---
+
+## 🧩 Por qué `etiquetas()` y `contar()` están en el puerto
+
+Podrían parecer detalle del adaptador de disco —son carpetas y ficheros—, pero
+la pregunta que contestan es del dominio: **qué señas hay y cuántas muestras de
+cada una**. De ahí sale `n_clases`, que el plan prohíbe escribir en el código.
+
+Y recorrer el dataset entero solo para contarlo sería caro en cuanto crezca:
+cada adaptador lo resuelve como pueda (en disco, contando ficheros; en una base
+de datos, con un `COUNT`). Eso es precisamente lo que justifica que sea parte de
+la interfaz y no una función suelta.
+
+`GET /senas` del backend se apoya en esto, así que la API no depende de que el
+dataset viva en carpetas.

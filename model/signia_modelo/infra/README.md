@@ -17,10 +17,13 @@ Cambiar disco por nube, o torch por otra cosa, es escribir otro archivo aquí.
 | Archivo | Responsabilidad |
 |---|---|
 | `json_contrato.py` | 🔄 dict JSON ↔ entidades, con validación y mensajes accionables |
+| `json_lote.py` | 📦 El sobre `{schema, muestras}` que manda el front, con la posición en los errores |
 | `ficheros_json.py` | 💾 Cargar / guardar una muestra en un `.json` |
 | `nombres_de_ruta.py` | 🛡️ Sanear etiquetas y sesiones antes de usarlas como carpeta |
 | `configuracion_datos.py` | ⚙️ Raíz del dataset por `DATOS_DIR` (por defecto `./data`) |
 | `repo_ficheros.py` | 🗂️ El dataset en disco: `crudo/aisladas/<etiqueta>/` y `crudo/frases/` |
+| `informe_de_dataset.py` | 🧾 Resumen + avisos → líneas de texto. El **único** sitio donde un código de aviso se vuelve una frase |
+| `lienzo_ascii.py` | 🖼️ Puntos 2D → cuadrícula de texto, con el tiempo en el carácter y sin dependencias gráficas |
 
 ### 🧮 Modelo
 

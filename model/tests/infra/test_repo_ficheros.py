@@ -82,6 +82,18 @@ class TestGuardarYListar:
         repo_vacio.guardar(factorias.frase())
         assert len(list(repo_vacio.listar())) == 2
 
+    def test_filtrar_por_etiqueta_no_arrastra_las_frases(self, repo_vacio):
+        """Una etiqueta nombra una clase de aisladas; las frases no tienen etiqueta."""
+        repo_vacio.guardar(factorias.muestra(etiqueta="hola"))
+        repo_vacio.guardar(factorias.frase())
+        muestras = list(repo_vacio.listar(etiqueta="hola"))
+        assert [m.tipo for m in muestras] == ["aislada"]
+
+    def test_filtrar_por_tipo_frase_ignora_la_etiqueta(self, repo_vacio):
+        repo_vacio.guardar(factorias.muestra(etiqueta="hola"))
+        repo_vacio.guardar(factorias.frase())
+        assert len(list(repo_vacio.listar(tipo="frase"))) == 1
+
     def test_repositorio_vacio_no_falla(self, repo_vacio):
         assert list(repo_vacio.listar()) == []
         assert repo_vacio.etiquetas() == []

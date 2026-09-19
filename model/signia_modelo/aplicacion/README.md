@@ -1,9 +1,10 @@
-# ⚙️ `aplicacion/` — Preprocesado
+# ⚙️ `aplicacion/` — Preprocesado e inspección del dataset
 
 ## 📖 Introducción
 
 La capa que convierte una **muestra cruda** en el **tensor de longitud fija** que
-entra al grafo ONNX. Depende solo del dominio y de numpy.
+entra al grafo ONNX, y la que mide el dataset para saber si ya se puede
+entrenar. Depende solo del dominio y de numpy.
 
 **Aquí no se normaliza nada**: restar la muñeca, calcular la escala y dividir
 ocurre *dentro* del grafo, que es lo único que garantiza que el navegador y el
@@ -17,7 +18,12 @@ entrenamiento hagan exactamente lo mismo.
 |---|---|
 | `remuestreo.py` | ⏱️ De `n` frames a `destino` índices, con `int(x + 0.5)`. Gemelo de `front/app/src/aplicacion/remuestreo.js` |
 | `preprocess.py` | 🧱 Muestra → `EntradaCruda(lm (T,2,21,3), presencia (T,2))`, con ranuras fijas |
+| `importacion_de_lote.py` | 📥 Caso de uso: meter un lote en el dataset (lo usan el script y `POST /muestras`) |
+| [`inspeccion/`](inspeccion/) | 🔬 Métricas, resumen, diagnóstico y trayectoria del dataset (Fase 2) |
 | `__init__.py` | Documenta la capa |
+
+El preprocesado alimenta al **modelo**; la inspección alimenta a la **persona
+que graba**. Son dos usos del mismo dato y no comparten código.
 
 ---
 
@@ -39,7 +45,7 @@ entrenamiento hagan exactamente lo mismo.
 
 | Dependencia | Para qué |
 |---|---|
-| `numpy` | Los arrays `float32` del tensor |
+| `numpy` | Los arrays `float32` del tensor (la inspección **no** lo usa) |
 | `..dominio.contrato` | `T`, `N_MANOS`, `N_LANDMARKS`, `N_DIMS`, `LADOS_CANONICOS` |
 | `..dominio.entidades` | `Frame`, `Lado`, `Muestra` |
 | `..dominio.puertos` | El protocolo `Remuestreador` |

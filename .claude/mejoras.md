@@ -277,10 +277,74 @@ Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits,
 - [x] Snt considera no prioritarios en esta sesión: revisar la compilación commit a commit, construir la imagen Docker, ver la intro en limpio y auditar versiones de dependencias (quedan abajo como técnica de baja prioridad).
 - [x] ⚠️ Cambio de contenido a revisar por Snt: "Lengua de Señas Espanola" → **"Lengua de Signos Española"** (nombre oficial de la LSE) y "lenguaje de señas" → "lengua de señas" en el título.
 
+## Hecho (sesión 42) — Fase 2: red de contrato cruzado e inspector del dataset
+
+Rama `feat/fase-2-dataset`. Dos unidades, ambas con tests y documentación.
+
+### 1. Test de contrato cruzado JS <-> Python (el prerrequisito acordado)
+- [x] **`model/scripts/exportar_contrato.py` → `model/contrato.json`**: recorre `dominio/contrato.py` por descubrimiento (mayúsculas + valor serializable), así que una constante nueva entra en el export sin que nadie tenga que acordarse. Lo que sí es explícito y comentado es `CLAVES_COMPARTIDAS_CON_JS` (9 constantes): decidir qué tiene que declarar también el front es una decisión de diseño, no algo deducible del código.
+- [x] **`tests/test_contrato_exportado.py` (23 tests)**: sincronía con el código, cobertura de las constantes críticas (blinda también sus *nombres*) y **coherencia interna** — `F = VALORES_POR_MANO × N_MANOS`, una ranura por lado canónico, índices dentro de rango, muñeca ≠ nudillo (si coincidieran, la escala sería 0 y la forma infinita), rango de `score` no invertido.
+- [x] **`front/app/src/dominio/__tests__/contratoCompartido.test.js`**: lee el mismo JSON (versionado, así que la suite del front no ejecuta Python) y compara valor a valor. Vigila además las constantes que hoy son solo de Python (`F`, `EPS_ESCALA`) **desde el momento en que el front las declare**, sin tener que ampliar el test.
+- [x] Verificado que la red tiene dientes: cambiar `IDX_MUNECA` solo en JS pone 2 tests en rojo; cambiar `SCHEMA` solo en Python, otros 2. **Con esto se cierra el pendiente técnico que bloqueaba empezar a grabar.**
+- [x] `contrato.md` declara ahora a su gemelo JSON, y su tabla "qué rompe qué" lleva una columna nueva: *hay que regenerar `contrato.json`*.
+
+### 2. Inspector del dataset (`inspeccionar.py`, el fichero que pedía la Fase 2)
+- [x] **Capa nueva `aplicacion/inspeccion/`**, cuatro módulos con una responsabilidad cada uno: `metricas_de_muestra` (¿qué hay en esta muestra?), `resumen_del_dataset` (¿cuánto hay de cada clase?), `diagnostico_del_dataset` (¿cumple la Fase 2?) y `trayectoria_de_muneca` (¿tiene pinta de seña?). Sin numpy, sin disco, sin prints.
+- [x] **Medir y juzgar, separados**: el resumen no conoce ningún umbral y el diagnóstico devuelve **códigos** (`CodigoDeAviso`), no frases — el texto lo pone `infra/informe_de_dataset.py`, igual que en el front con los motivos de descarte. El mismo criterio servirá para un endpoint o para el CI sin reescribirlo.
+- [x] **13 criterios, uno por función** en una tupla `REVISIONES` (añadir uno no toca los demás). Bloquean: dataset vacío, clase con pocas muestras, falta `reposo`, `reposo` sin sobrerrepresentar, una sola sesión, pocas frases y **una glosa en las frases sin clase entrenada** (sería un error de WER que no es del modelo). Solo avisan: clase de una sola sesión, muestra casi estática, muestra donde MediaPipe perdió la mano, frases poco variadas, frase de una sola glosa y clase que no aparece en ninguna frase (se entrena y nunca se evalúa).
+- [x] **`dominio/criterios_dataset.py`**: los números del plan con nombre y en un solo sitio. `FRAMES_MINIMOS_POR_MUESTRA` se **deriva de `T`** (`int(T × 0.25)` = 12) en vez de copiar el `FRAMES_MINIMOS = 5` del front: un número duplicado entre lenguajes es justo lo que la otra mitad de la sesión venía a evitar.
+- [x] **`dominio/reposo.py` y `dominio/etiquetas.py`**: `reposo` es la única etiqueta que el código nombra (con el por qué: es el segmentador), y la forma canónica de una etiqueta vive en un solo sitio — `"Hola"` y `" hola "` no crean dos clases fantasma con la mitad de muestras cada una.
+- [x] **`infra/lienzo_ascii.py`**: trayectoria en texto, sin matplotlib. Dominio fijo `[0,1]²` (el encuadre de la cámara) en vez de auto-zoom, para que la misma seña salga en el mismo sitio en dos muestras y se vea si se hizo alta o baja — en LSE *dónde* se hace la seña es significado. El carácter cuenta el tiempo (`.` → `@`), así que se ve la **dirección** del movimiento y no solo la forma del trazo.
+- [x] **El inspector es una puerta, no un visor**: devuelve código de salida 1 si queda algún aviso bloqueante, así que el mismo comando valdrá en el CI. Con `--etiqueta` la vista es parcial y los criterios globales se **desactivan** (y el informe lo dice): afirmar "falta reposo" mirando solo `hola` sería un falso bloqueo.
+- [x] **Bug encontrado de paso en `repo_ficheros.rutas()`**: filtrar por etiqueta arrastraba además *todas* las frases del dataset (la carpeta de frases se añadía siempre). Una etiqueta nombra una clase de aisladas, así que ahora acota también el tipo. Con test.
+- [x] `Lado.canonicos()` en el dominio: el orden de las ranuras estaba reconstruido en `preprocess.py`; ahora se escribe una sola vez y lo reusan el preprocesado y las métricas.
+- [x] **164 tests nuevos (351 en total, 325 sin torch)** y verificado a mano contra un dataset de juguete: informe completo, vista filtrada, trayectoria dibujada, dataset vacío, etiqueta inexistente y muestra fuera de rango. Códigos de salida comprobados.
+- [x] README nuevos en `aplicacion/inspeccion/` y `tests/aplicacion/inspeccion/`; actualizados los de `dominio/`, `aplicacion/`, `infra/`, `scripts/`, `tests/` y los contadores de tests del repo.
+
+### Nota de rol
+- [x] El plan seguía diciendo "Snt escribe el código; Claude guía y hace los estilos" (sesión 34). Desde la sesión 39 no es así y `claude.md` dice lo contrario; queda como pendiente para corregirlo en el plan.
+
+## Hecho (sesión 43) — el bucle de captura se cierra: importador y backend mínimo
+
+Snt señaló el hueco real del sistema: *"la naturaleza del software es que se reentrene; yo voy a Entrenamiento, hago las señas y eso llega a un archivo que le sirve al servidor para entrenar"*. Eso no existía: el front descargaba un JSON y nadie lo movía. Además el fichero del front es un **lote** (varias muestras) y el dataset guarda **una muestra por fichero**, así que ni copiándolo a mano entraba.
+
+Decisión acordada: importador + backend mínimo ahora; `POST /entrenamientos` cuando exista `train.py`, porque un endpoint que lanza un entrenamiento inexistente no se puede ni probar.
+
+### 1. El puente: de lote a dataset
+- [x] **`infra/json_lote.py`** — valida el sobre `{schema, muestras}` **aparte** de cada muestra, y sus errores dicen la posición: con 40 muestras en un fichero, "muestra invalida" no serviría de nada.
+- [x] **`aplicacion/importacion_de_lote.py`** — el caso de uso, contra el puerto `EscritorMuestras` y no contra el disco. Devuelve el conteo por etiqueta (una frase cuenta en todas sus glosas) para ver de un vistazo si entró lo que se pretendía grabar.
+- [x] **`scripts/importar_lote.py`** — valida **todos** los ficheros antes de escribir **ninguno**: importar a medias dejaría el dataset en un estado que nadie recuerda. Con `--seco` valida sin tocar nada.
+
+### 2. El backend mínimo (primera mitad de la Fase 5)
+- [x] **`POST /muestras`** (201), **`GET /senas`** (vocabulario y recuento) y **`GET /salud`** (estado + versión del contrato + dataset escribible). FastAPI con la estructura del `back/README.md`: `api/` (una ruta por archivo), `dominio/esquemas/`, `infra/` y `config.py` por variables de entorno.
+- [x] **El contrato de datos NO se reescribe en Pydantic.** El esquema valida el sobre y nada más; quién decide si una muestra es válida es `signia_modelo`, el mismo código que usa el importador. Dos definiciones de "qué es una muestra" acabarían separándose, que es justo lo que el test de contrato cruzado impide.
+- [x] **El endpoint y el script son el mismo caso de uso**: `muestras_desde_lote()` + `importar_lote()`. No pueden divergir.
+- [x] `ErrorDeContrato` → **422** en un solo sitio (`manejador_de_errores.py`), con el mensaje tal cual: ya dice qué muestra del lote falla.
+- [x] Repositorio y ajustes **inyectados**: la suite los sustituye por un `tmp_path`, así que ningún test escribe en el dataset real. Los ajustes viajan en `app.state` y no en la caché del proceso — si no, `crear_app(configuracion)` sería mentira (bug detectado y corregido con un test: `/salud` leía la raíz del entorno en vez de la de su app).
+- [x] **`GET /salud` publica la versión del contrato** a propósito: un backend vivo que habla otro `schema` es peor que uno caído, porque acepta las muestras y las guarda mal.
+- [x] 26 tests con `TestClient`, incluidos los de **CORS** — sin eso todo funciona con `curl` y nada desde el navegador, que es el único cliente real.
+
+### 3. El front deja de descargar
+- [x] **"Enviar" sube el lote** (`POST /muestras`) y, si el backend no responde, **descarga el JSON como respaldo** y conserva las muestras. El backend apagado no es un error: es el camino de respaldo. Una tanda de 40 muestras es media hora de trabajo y no se tira por un `ECONNREFUSED`.
+- [x] Esa decisión vive en `aplicacion/envioDeMuestras.js` (producto, no React) y se prueba sin montar componentes. El transporte, en `infra/red/` (`urlDeLaApi.js` + `clienteDeMuestras.js`), con `VITE_API_URL` para el despliegue.
+- [x] El lote **solo se vacía si el servidor lo tiene**; el botón se apaga y dice "Enviando..." mientras tanto.
+- [x] Eliminado `AVISOS_DE_CAPTURA.SIN_MUESTRAS`, que quedaba muerto (ahora lo pone `textosDeEnvio.js`).
+
+### 4. De paso
+- [x] **El puerto `LectorMuestras` gana `etiquetas()` y `contar()`**: `GET /senas` los necesitaba y pedírselos al adaptador concreto habría sido saltarse la interfaz. La justificación está escrita en su README (qué señas hay es una pregunta del dominio, y contar recorriendo todo sería caro).
+- [x] `back/requirements.txt` actualizado con uvicorn, httpx y pytest fijados; `pyproject.toml` del backend con la config de pytest.
+- [x] README nuevos en `back/app/`, `back/app/api/`, `back/app/dominio/`, `back/app/dominio/esquemas/`, `back/app/infra/`, `back/tests/`, `front/app/src/infra/red/` y sus tests; `back/README.md` reescrito (ya no es "🔴 sin código"); actualizados los del modelo, el front y el raíz, con el diagrama del bucle real.
+
+### Verificado
+- [x] **Bucle completo a mano**: lote simulado con el formato real del front → `importar_lote.py` → `inspeccionar.py` lo ve. Con un fichero inválido en medio, no se crea ni la carpeta.
+- [x] **API en marcha con uvicorn**: `/salud`, `POST /muestras` con el fichero real (201, 4 muestras, conteo por etiqueta), `GET /senas`, y un lote malo devuelve 422 con el motivo exacto.
+- [x] **CORS probado desde el navegador de verdad**: `fetch` desde `localhost:5173` a `localhost:8000` → 201. Es la parte que no se puede dar por buena con `curl`.
+- [x] 379 tests de pytest en el modelo (353 sin torch), 26 en el backend, 166 de vitest en el front. Lint y build limpios.
+
 ## Pendiente / próximos pasos
 
 ### 🔴 Decisiones de Snt (bloquean fases)
-- [ ] **Verificar el handedness con el vídeo espejado** antes de grabar: levantar la mano derecha y leer el rótulo; si dice "izquierda", `INVERTIR_LADO = true` en `front/app/src/infra/mediapipe/ladoDesdeCategoria.js`.
+- [x] ~~Verificar el handedness con el vídeo espejado~~ — **verificado por Snt con cámara real: correcto, `INVERTIR_LADO` se queda en `false`.**
 - [ ] Decidir el vocabulario inicial (recomendado 5-10 señas + `reposo`) para arrancar la Fase 2.
 - [ ] Decidir si se graba `PoseLandmarker` desde el principio — única decisión irreversible de la Fase 2.
 - [ ] Decidir si "Enviar" dispara el reentrenamiento (opción A del plan) o queda como acción de administración (opción B).
@@ -290,16 +354,23 @@ Rama `refactor/cumplimiento-reglas`, 12 commits atómicos (Conventional Commits,
 ### 🟠 Producto
 - [ ] **El contenido de Inicio promete cosas que el producto aún no hace** ("traduce en tiempo real", "frases de hasta 5 palabras"). Además "hasta 5 palabras" contradice el plan actual (vocabulario abierto de `n` señas). Reescribir con Snt para que refleje el estado real.
 - [ ] Mover "Entrenamiento" fuera del menú público (o protegerlo): es una herramienta interna de captura, no algo para el usuario final.
-- [ ] Guardar el lote de muestras en IndexedDB mientras no exista `POST /muestras`: hoy recargar la página pierde todas las muestras no descargadas.
+- [ ] Guardar el lote en IndexedDB: recargar la página sigue perdiendo lo grabado y no enviado (ya no bloquea tanto, porque *Enviar* sube en cuanto hay backend).
 - [ ] Confirmación antes de "Borrar última muestra" o botón de deshacer.
 
 ### 🟡 Técnica
-- [ ] **Test de contrato cruzado JS ↔ Python — al empezar la Fase 2** (acordado con Snt). Hoy la conformidad solo detecta divergencias que cambian el **tensor**: si alguien toca `SCHEMA`, `IDX_MUNECA` o `N_MANOS` en un solo lado, nadie se entera hasta mucho después. Un test que lea `model/signia_modelo/dominio/contrato.py` como texto (o un JSON generado por `scripts/`) y lo compare con `front/app/src/dominio/contrato.js` cierra ese hueco. Hacerlo **antes** de grabar el dataset: después, una divergencia ya habría contaminado muestras.
+- [x] ~~Test de contrato cruzado JS <-> Python~~ - **hecho en la sesion 42**: `contrato.json` generado desde `contrato.py`, vigilado por pytest en el lado Python y por vitest en el lado JS.
 - [ ] (Baja) Construir y probar la imagen Docker del front (Node 24 + pnpm 11 + nginx nuevo).
 - [ ] (Baja) Auditar versiones de dependencias del front y del modelo (regla 1).
 - [ ] (Baja) Ver la intro en una ventana limpia tras pasar sus duraciones a variables CSS.
-- [ ] Fase 2 del plan: `model/scripts/inspeccionar.py` y grabación del dataset.
-- [ ] Fase 5: backend (`POST /muestras`, `GET /modelos/activo`) con la estructura por capas descrita en `back/README.md`.
+- [x] ~~`model/scripts/inspeccionar.py`~~ — hecho en la sesión 42. **Queda la grabación del dataset**, que es trabajo de cámara: vocabulario, 30-40 muestras por seña en 2 sesiones o más, `reposo` al doble y 20-30 frases. El inspector dice cuándo está.
+- [ ] Añadir al front un campo para la **sesión**: grabar en sesiones identificadas es un criterio bloqueante del inspector y hoy la genera el hook (fecha + "local").
+- [ ] Mostrar en Entrenamiento el vocabulario que devuelve `GET /senas`: cuántas muestras lleva cada seña, para saber qué falta grabar sin salir de la página.
+- [ ] Avisar en el front si `GET /salud` devuelve un `schema` distinto al suyo, antes de dejar grabar.
+- [ ] (Baja) El `TestClient` de FastAPI avisa de que httpx quedará obsoleto en favor de `httpx2`; revisarlo cuando esté estable.
+- [ ] Grabar **frases** desde el front (`tipo: "frase"` + `etiquetas`): la Fase 2c las exige y la interfaz solo sabe grabar aisladas.
+- [ ] Corregir en `plan-implementacion.md` la línea de rol ("Snt escribe el código; Claude guía"), desfasada desde la sesión 39.
+- [x] ~~Fase 5: `POST /muestras`~~ — hecho en la sesión 43, con `GET /senas` y `GET /salud`. **Faltan** `GET /modelos/activo`, `POST /entrenamientos` y `POST /redactar`, todos detrás de `train.py`.
+- [ ] **`model/train.py` (Fases 3 y 4)**: sin entrenador no hay artefacto que publicar ni reentrenamiento que orquestar. Es lo siguiente del camino crítico en cuanto haya dataset.
 - [ ] Tests de componentes/hooks de React (`@testing-library/react` + `jsdom`): hoy solo se prueba lógica pura.
 - [ ] CI con GitHub Actions: `pnpm lint && pnpm test && pnpm build` y `pytest -m "not torch"` en cada PR.
 - [ ] `senas-persona3.jpg` pesa 940 KB: convertir a WebP/AVIF.

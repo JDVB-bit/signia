@@ -11,12 +11,14 @@ import { ESTADOS_CAMARA } from '../estados/estadosDeCamara'
 import { ESTADOS_DETECTOR } from '../estados/estadosDelDetector'
 import useCapturaSenas from '../hooks/useCapturaSenas'
 import { mensajeDeEstadoDeCaptura } from '../textos/mensajeDeEstadoDeCaptura'
+import { ENVIANDO } from '../textos/textosDeEnvio'
 
 /** Modo AISLADO: el camino de captura de dato para entrenar (Fase 1 del plan).
  *
  * "Entrenar" graba UNA muestra de UNA seña (pulsar inicia; pulsar otra vez o el
- * tope de tiempo la cierra) y sube el contador. "Enviar" descarga el lote como
- * JSON; en la Fase 5 pasara a llamar al endpoint. Traducir es el modo continuo.
+ * tope de tiempo la cierra) y sube el contador. "Enviar" manda el lote al
+ * backend (`POST /muestras`) y, si no responde, lo descarga como respaldo.
+ * Traducir es el modo continuo.
  */
 export default function Entrenamiento() {
     const [nombreSena, setNombreSena] = useState('')
@@ -85,8 +87,12 @@ export default function Entrenamiento() {
                             <Button variant="primary" onClick={captura.alternarGrabacion} disabled={!detectorListo}>
                                 {captura.grabando ? 'Detener' : 'Entrenar'}
                             </Button>
-                            <Button variant="secondary" onClick={() => captura.exportar()} disabled={!hayMuestras}>
-                                Enviar
+                            <Button
+                                variant="secondary"
+                                onClick={() => captura.enviar()}
+                                disabled={!hayMuestras || captura.enviando}
+                            >
+                                {captura.enviando ? ENVIANDO : 'Enviar'}
                             </Button>
                         </div>
 

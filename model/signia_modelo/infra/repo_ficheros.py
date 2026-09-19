@@ -85,6 +85,11 @@ class RepositorioMuestrasEnDisco:
 
     def rutas(self, *, tipo: str | None = None, etiqueta: str | None = None) -> list[Path]:
         """Rutas de las muestras que cumplen el filtro, ordenadas."""
+        # Una etiqueta nombra una clase de aisladas: las frases no tienen carpeta
+        # por etiqueta, asi que pedir una etiqueta acota tambien el tipo
+        if etiqueta and tipo is None:
+            tipo = TIPO_AISLADA
+
         carpetas: list[Path] = []
         if tipo in (None, TIPO_AISLADA):
             base = self._crudo / CARPETA_AISLADAS

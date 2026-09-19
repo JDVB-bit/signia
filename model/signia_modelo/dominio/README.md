@@ -16,6 +16,9 @@ Todo lo demás depende de aquí; aquí no se depende de nada.
 |---|---|
 | `contrato.py` | 📜 Constantes del contrato: `SCHEMA`, `T = 48`, `F = 128`, índices de muñeca y nudillo, rango de `score`… |
 | `errores.py` | 🚨 Jerarquía de errores: `ErrorDeSignia` → `ErrorDeContrato`, `ErrorDeRemuestreo` |
+| `etiquetas.py` | 🏷️ Forma canónica de una etiqueta: `" Hola "` y `"hola"` son la misma clase |
+| `reposo.py` | 😴 `ETIQUETA_REPOSO` y `es_reposo()`: la única glosa que el código nombra, porque es el **segmentador** |
+| `criterios_dataset.py` | 📏 Cuándo un dataset está listo para entrenar (Fase 2). No es contrato: no viaja a JS |
 | [`entidades/`](entidades/) | 🧩 `Lado`, `Mano`, `Frame`, `Muestra`, `MuestraAislada`, `MuestraFrase` |
 | [`puertos/`](puertos/) | 🔌 Interfaces `Remuestreador`, `LectorMuestras`, `EscritorMuestras`, `RepositorioMuestras` |
 | `__init__.py` | Documenta la capa |
@@ -91,6 +94,29 @@ dependencias de verdad, no herencia disfrazada.
 | Features | `VALORES_PRESENCIA = 1`, `VALORES_POSICION = 2`, `VALORES_ESCALA = 1`, `VALORES_FORMA = 60`, `VALORES_POR_MANO = 64`, `F = 128` |
 | Robustez | `EPS_ESCALA = 1e-6` |
 | Vocabulario | `LADOS_CANONICOS = ("izquierda", "derecha")`, `TIPO_AISLADA`, `TIPO_FRASE` |
+
+> 🤖 Estas constantes se exportan a [`../../contrato.json`](../../contrato.json)
+> con `scripts/exportar_contrato.py`, y `test_contrato_exportado.py` vigila que
+> el fichero no se quede atrás. El front compara su `contrato.js` contra él.
+
+### `criterios_dataset.py` y `reposo.py`
+
+Los criterios de la Fase 2 **no son contrato**: no describen el formato del
+dato, así que pueden subir sin invalidar nada de lo grabado y no viajan a JS.
+
+| Constante | Valor | Por qué |
+|---|---|---|
+| `MUESTRAS_MINIMAS_POR_CLASE` | 30 | Plan, Fase 2a |
+| `FACTOR_MINIMO_DE_REPOSO` | 2.0 | `reposo` es el segmentador, no una clase más |
+| `FRASES_MINIMAS` | 20 | Sin frases no hay WER |
+| `SESIONES_MINIMAS` | 2 | Con una sola, el modelo aprende la luz de esa tarde |
+| `FRAMES_MINIMOS_POR_MUESTRA` | `int(T × 0.25)` = 12 | **Derivado de `T`**, para no copiar el número del front |
+| `PROPORCION_MINIMA_DE_FRAMES_CON_MANO` | 0.5 | Por debajo, MediaPipe perdió la mano medio clip |
+| `FRACCION_MINIMA_DE_SECUENCIAS_DISTINTAS` | 0.5 | Repetir una frase en otra sesión es dato bueno; veinte veces, no |
+
+`ETIQUETA_REPOSO = "reposo"` es la **única etiqueta escrita en el código**. El
+resto del vocabulario sale del dataset y `n_clases` no se escribe en ninguna
+parte.
 
 Todas son `Final`: el tipador avisa si alguien intenta reasignarlas.
 

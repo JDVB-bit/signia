@@ -304,8 +304,22 @@ reconocimiento, no la frase.
 ### Ficheros
 - `model/data/crudo/aisladas/<etiqueta>/*.json` — ignorado en git.
 - `model/data/crudo/frases/*.json` — ignorado en git.
-- `model/scripts/inspeccionar.py` — muestras por clase, duración media, frames
-  sin manos, plot de una trayectoria para ver que tiene sentido.
+- [x] `model/scripts/inspeccionar.py` — muestras por clase, duración media,
+  frames sin manos y trayectoria de la muñeca en ASCII. **Devuelve código de
+  salida 1 si el dataset no cumple los criterios**, así que es la puerta de la
+  fase y no solo un visor.
+- [x] `model/signia_modelo/aplicacion/inspeccion/` — métricas, resumen,
+  diagnóstico y trayectoria (la lógica; el script solo orquesta e imprime).
+- [x] `model/signia_modelo/dominio/criterios_dataset.py` — los números de esta
+  fase, con nombre y en un solo sitio.
+
+### Hecho antes de grabar: la red de contrato cruzado
+- [x] `model/scripts/exportar_contrato.py` → `model/contrato.json`, más
+  `test_contrato_exportado.py` (Python) y `contratoCompartido.test.js` (JS).
+  Cierra el hueco que dejaba la conformidad de la Fase 0: comparaba tensores, y
+  un cambio en `SCHEMA` / `IDX_MUNECA` / `N_MANOS` no cambia el tensor. Se hizo
+  **antes** de grabar a propósito: después, una divergencia ya habría
+  contaminado muestras.
 
 ### Decisión pendiente
 - [ ] **¿Grabar también `PoseLandmarker` desde el principio?** Es la única
@@ -419,6 +433,12 @@ WER con su desglose.
 ---
 
 ## Fase 5 — Backend
+
+> 🟢 **Primera mitad hecha (sesión 43):** `POST /muestras`, `GET /senas` y
+> `GET /salud` funcionan, con el contrato validado por el paquete del modelo y
+> el mismo caso de uso que `scripts/importar_lote.py`. El resto de endpoints
+> espera a `train.py`: un endpoint que lanza un entrenamiento inexistente no se
+> puede probar.
 
 **Objetivo:** recoger dato, entrenar, y **servir el artefacto**. Ojo: el backend
 ya no está en el camino crítico de la traducción.

@@ -20,6 +20,13 @@ class TestLado:
         with pytest.raises(ErrorDeContrato, match="lado invalido"):
             Lado.desde_texto("left")
 
+    def test_los_canonicos_van_en_el_orden_de_las_ranuras(self):
+        """Invertir esto mandaria cada mano a la ranura de la otra."""
+        assert Lado.canonicos() == (Lado.IZQUIERDA, Lado.DERECHA)
+
+    def test_hay_un_canonico_por_lado(self):
+        assert len(Lado.canonicos()) == len(tuple(Lado))
+
 
 class TestMano:
     def test_normaliza_a_tuplas_de_float(self):

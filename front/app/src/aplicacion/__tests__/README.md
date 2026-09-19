@@ -91,7 +91,7 @@ it('redondea hacia arriba, como int(x+0.5) en Python', () => {
 ## 💡 Ejemplos de uso
 
 ```bash
-pnpm test                      # toda la suite del front (105 tests, <1 s)
+pnpm test                      # toda la suite del front (166 tests, <1 s)
 pnpm test -- conformidad       # solo el test de conformidad
 ```
 
@@ -100,8 +100,8 @@ Si tocas el preprocesado **a propósito**, el ciclo completo es:
 ```bash
 cd model
 venv/Scripts/python scripts/generar_fixtures.py     # regenerar la referencia
-venv/Scripts/python -m pytest                       # 164 tests
-cd ../front/app && pnpm test                        # 105 tests
+venv/Scripts/python -m pytest                       # 379 tests
+cd ../front/app && pnpm test                        # 166 tests
 ```
 
 > 🚨 Si la conformidad falla **no regeneres los fixtures sin pensar**. Significa
