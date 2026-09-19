@@ -1,12 +1,46 @@
-annotated-doc==0.0.5
-annotated-types==0.8.0
-anyio==4.14.2
+# Dependencias del backend, con la version exacta de todo el arbol: asi el
+# entorno del servidor es reproducible y no cambia por debajo entre despliegues.
+#
+# Falta a proposito el paquete del modelo, que se instala en editable desde el
+# repositorio y no desde un indice:
+#
+#     venv/Scripts/pip install -e ../model
+#
+# El backend NO necesita torch: el entrenamiento es un extra del modelo.
+
+# --- API ---
 fastapi==0.141.1
-greenlet==3.5.4
-idna==3.18
+starlette==1.4.1
 pydantic==2.13.4
 pydantic_core==2.46.4
-SQLAlchemy==2.0.51
-starlette==1.4.1
+annotated-doc==0.0.5
+annotated-types==0.8.0
 typing-inspection==0.4.2
 typing_extensions==4.16.0
+anyio==4.14.2
+idna==3.18
+
+# --- Servidor ASGI ---
+uvicorn==0.53.0
+click==8.5.0
+colorama==0.4.6
+h11==0.16.0
+httptools==0.8.0
+python-dotenv==1.2.3
+PyYAML==6.0.3
+watchfiles==1.2.0
+websockets==17.1
+
+# --- Persistencia (SQLite cuando haya registro de modelos, Fase 7) ---
+SQLAlchemy==2.0.51
+greenlet==3.5.4
+
+# --- Desarrollo y tests ---
+pytest==9.1.1
+iniconfig==2.3.0
+pluggy==1.6.0
+packaging==26.3
+Pygments==2.21.0
+httpx==0.28.1
+httpcore==1.0.9
+certifi==2026.7.22
