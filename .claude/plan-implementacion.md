@@ -434,6 +434,12 @@ WER con su desglose.
 
 ## Fase 5 — Backend
 
+> 🟢 **Primera mitad hecha (sesión 43):** `POST /muestras`, `GET /senas` y
+> `GET /salud` funcionan, con el contrato validado por el paquete del modelo y
+> el mismo caso de uso que `scripts/importar_lote.py`. El resto de endpoints
+> espera a `train.py`: un endpoint que lanza un entrenamiento inexistente no se
+> puede probar.
+
 **Objetivo:** recoger dato, entrenar, y **servir el artefacto**. Ojo: el backend
 ya no está en el camino crítico de la traducción.
 

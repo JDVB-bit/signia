@@ -78,7 +78,7 @@ qué** está mal, en vez de limitarse a decir que un número cambió.
 ## 💡 Ejemplos de uso
 
 ```bash
-pnpm test                       # toda la suite (138 tests)
+pnpm test                       # toda la suite (166 tests)
 pnpm test -- dominio            # solo estos
 pnpm test:watch -- dominio      # en vigilancia mientras se programa
 ```

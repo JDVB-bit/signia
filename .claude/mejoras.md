@@ -304,6 +304,43 @@ Rama `feat/fase-2-dataset`. Dos unidades, ambas con tests y documentación.
 ### Nota de rol
 - [x] El plan seguía diciendo "Snt escribe el código; Claude guía y hace los estilos" (sesión 34). Desde la sesión 39 no es así y `claude.md` dice lo contrario; queda como pendiente para corregirlo en el plan.
 
+## Hecho (sesión 43) — el bucle de captura se cierra: importador y backend mínimo
+
+Snt señaló el hueco real del sistema: *"la naturaleza del software es que se reentrene; yo voy a Entrenamiento, hago las señas y eso llega a un archivo que le sirve al servidor para entrenar"*. Eso no existía: el front descargaba un JSON y nadie lo movía. Además el fichero del front es un **lote** (varias muestras) y el dataset guarda **una muestra por fichero**, así que ni copiándolo a mano entraba.
+
+Decisión acordada: importador + backend mínimo ahora; `POST /entrenamientos` cuando exista `train.py`, porque un endpoint que lanza un entrenamiento inexistente no se puede ni probar.
+
+### 1. El puente: de lote a dataset
+- [x] **`infra/json_lote.py`** — valida el sobre `{schema, muestras}` **aparte** de cada muestra, y sus errores dicen la posición: con 40 muestras en un fichero, "muestra invalida" no serviría de nada.
+- [x] **`aplicacion/importacion_de_lote.py`** — el caso de uso, contra el puerto `EscritorMuestras` y no contra el disco. Devuelve el conteo por etiqueta (una frase cuenta en todas sus glosas) para ver de un vistazo si entró lo que se pretendía grabar.
+- [x] **`scripts/importar_lote.py`** — valida **todos** los ficheros antes de escribir **ninguno**: importar a medias dejaría el dataset en un estado que nadie recuerda. Con `--seco` valida sin tocar nada.
+
+### 2. El backend mínimo (primera mitad de la Fase 5)
+- [x] **`POST /muestras`** (201), **`GET /senas`** (vocabulario y recuento) y **`GET /salud`** (estado + versión del contrato + dataset escribible). FastAPI con la estructura del `back/README.md`: `api/` (una ruta por archivo), `dominio/esquemas/`, `infra/` y `config.py` por variables de entorno.
+- [x] **El contrato de datos NO se reescribe en Pydantic.** El esquema valida el sobre y nada más; quién decide si una muestra es válida es `signia_modelo`, el mismo código que usa el importador. Dos definiciones de "qué es una muestra" acabarían separándose, que es justo lo que el test de contrato cruzado impide.
+- [x] **El endpoint y el script son el mismo caso de uso**: `muestras_desde_lote()` + `importar_lote()`. No pueden divergir.
+- [x] `ErrorDeContrato` → **422** en un solo sitio (`manejador_de_errores.py`), con el mensaje tal cual: ya dice qué muestra del lote falla.
+- [x] Repositorio y ajustes **inyectados**: la suite los sustituye por un `tmp_path`, así que ningún test escribe en el dataset real. Los ajustes viajan en `app.state` y no en la caché del proceso — si no, `crear_app(configuracion)` sería mentira (bug detectado y corregido con un test: `/salud` leía la raíz del entorno en vez de la de su app).
+- [x] **`GET /salud` publica la versión del contrato** a propósito: un backend vivo que habla otro `schema` es peor que uno caído, porque acepta las muestras y las guarda mal.
+- [x] 26 tests con `TestClient`, incluidos los de **CORS** — sin eso todo funciona con `curl` y nada desde el navegador, que es el único cliente real.
+
+### 3. El front deja de descargar
+- [x] **"Enviar" sube el lote** (`POST /muestras`) y, si el backend no responde, **descarga el JSON como respaldo** y conserva las muestras. El backend apagado no es un error: es el camino de respaldo. Una tanda de 40 muestras es media hora de trabajo y no se tira por un `ECONNREFUSED`.
+- [x] Esa decisión vive en `aplicacion/envioDeMuestras.js` (producto, no React) y se prueba sin montar componentes. El transporte, en `infra/red/` (`urlDeLaApi.js` + `clienteDeMuestras.js`), con `VITE_API_URL` para el despliegue.
+- [x] El lote **solo se vacía si el servidor lo tiene**; el botón se apaga y dice "Enviando..." mientras tanto.
+- [x] Eliminado `AVISOS_DE_CAPTURA.SIN_MUESTRAS`, que quedaba muerto (ahora lo pone `textosDeEnvio.js`).
+
+### 4. De paso
+- [x] **El puerto `LectorMuestras` gana `etiquetas()` y `contar()`**: `GET /senas` los necesitaba y pedírselos al adaptador concreto habría sido saltarse la interfaz. La justificación está escrita en su README (qué señas hay es una pregunta del dominio, y contar recorriendo todo sería caro).
+- [x] `back/requirements.txt` actualizado con uvicorn, httpx y pytest fijados; `pyproject.toml` del backend con la config de pytest.
+- [x] README nuevos en `back/app/`, `back/app/api/`, `back/app/dominio/`, `back/app/dominio/esquemas/`, `back/app/infra/`, `back/tests/`, `front/app/src/infra/red/` y sus tests; `back/README.md` reescrito (ya no es "🔴 sin código"); actualizados los del modelo, el front y el raíz, con el diagrama del bucle real.
+
+### Verificado
+- [x] **Bucle completo a mano**: lote simulado con el formato real del front → `importar_lote.py` → `inspeccionar.py` lo ve. Con un fichero inválido en medio, no se crea ni la carpeta.
+- [x] **API en marcha con uvicorn**: `/salud`, `POST /muestras` con el fichero real (201, 4 muestras, conteo por etiqueta), `GET /senas`, y un lote malo devuelve 422 con el motivo exacto.
+- [x] **CORS probado desde el navegador de verdad**: `fetch` desde `localhost:5173` a `localhost:8000` → 201. Es la parte que no se puede dar por buena con `curl`.
+- [x] 379 tests de pytest en el modelo (353 sin torch), 26 en el backend, 166 de vitest en el front. Lint y build limpios.
+
 ## Pendiente / próximos pasos
 
 ### 🔴 Decisiones de Snt (bloquean fases)
@@ -317,7 +354,7 @@ Rama `feat/fase-2-dataset`. Dos unidades, ambas con tests y documentación.
 ### 🟠 Producto
 - [ ] **El contenido de Inicio promete cosas que el producto aún no hace** ("traduce en tiempo real", "frases de hasta 5 palabras"). Además "hasta 5 palabras" contradice el plan actual (vocabulario abierto de `n` señas). Reescribir con Snt para que refleje el estado real.
 - [ ] Mover "Entrenamiento" fuera del menú público (o protegerlo): es una herramienta interna de captura, no algo para el usuario final.
-- [ ] Guardar el lote de muestras en IndexedDB mientras no exista `POST /muestras`: hoy recargar la página pierde todas las muestras no descargadas.
+- [ ] Guardar el lote en IndexedDB: recargar la página sigue perdiendo lo grabado y no enviado (ya no bloquea tanto, porque *Enviar* sube en cuanto hay backend).
 - [ ] Confirmación antes de "Borrar última muestra" o botón de deshacer.
 
 ### 🟡 Técnica
@@ -326,10 +363,14 @@ Rama `feat/fase-2-dataset`. Dos unidades, ambas con tests y documentación.
 - [ ] (Baja) Auditar versiones de dependencias del front y del modelo (regla 1).
 - [ ] (Baja) Ver la intro en una ventana limpia tras pasar sus duraciones a variables CSS.
 - [x] ~~`model/scripts/inspeccionar.py`~~ — hecho en la sesión 42. **Queda la grabación del dataset**, que es trabajo de cámara: vocabulario, 30-40 muestras por seña en 2 sesiones o más, `reposo` al doble y 20-30 frases. El inspector dice cuándo está.
-- [ ] Añadir al front un campo para la **sesión**: grabar en sesiones identificadas es un criterio bloqueante del inspector y hoy no se controla desde la interfaz.
+- [ ] Añadir al front un campo para la **sesión**: grabar en sesiones identificadas es un criterio bloqueante del inspector y hoy la genera el hook (fecha + "local").
+- [ ] Mostrar en Entrenamiento el vocabulario que devuelve `GET /senas`: cuántas muestras lleva cada seña, para saber qué falta grabar sin salir de la página.
+- [ ] Avisar en el front si `GET /salud` devuelve un `schema` distinto al suyo, antes de dejar grabar.
+- [ ] (Baja) El `TestClient` de FastAPI avisa de que httpx quedará obsoleto en favor de `httpx2`; revisarlo cuando esté estable.
 - [ ] Grabar **frases** desde el front (`tipo: "frase"` + `etiquetas`): la Fase 2c las exige y la interfaz solo sabe grabar aisladas.
 - [ ] Corregir en `plan-implementacion.md` la línea de rol ("Snt escribe el código; Claude guía"), desfasada desde la sesión 39.
-- [ ] Fase 5: backend (`POST /muestras`, `GET /modelos/activo`) con la estructura por capas descrita en `back/README.md`.
+- [x] ~~Fase 5: `POST /muestras`~~ — hecho en la sesión 43, con `GET /senas` y `GET /salud`. **Faltan** `GET /modelos/activo`, `POST /entrenamientos` y `POST /redactar`, todos detrás de `train.py`.
+- [ ] **`model/train.py` (Fases 3 y 4)**: sin entrenador no hay artefacto que publicar ni reentrenamiento que orquestar. Es lo siguiente del camino crítico en cuanto haya dataset.
 - [ ] Tests de componentes/hooks de React (`@testing-library/react` + `jsdom`): hoy solo se prueba lógica pura.
 - [ ] CI con GitHub Actions: `pnpm lint && pnpm test && pnpm build` y `pytest -m "not torch"` en cada PR.
 - [ ] `senas-persona3.jpg` pesa 940 KB: convertir a WebP/AVIF.

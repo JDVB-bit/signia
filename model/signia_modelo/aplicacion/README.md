@@ -18,6 +18,7 @@ entrenamiento hagan exactamente lo mismo.
 |---|---|
 | `remuestreo.py` | ⏱️ De `n` frames a `destino` índices, con `int(x + 0.5)`. Gemelo de `front/app/src/aplicacion/remuestreo.js` |
 | `preprocess.py` | 🧱 Muestra → `EntradaCruda(lm (T,2,21,3), presencia (T,2))`, con ranuras fijas |
+| `importacion_de_lote.py` | 📥 Caso de uso: meter un lote en el dataset (lo usan el script y `POST /muestras`) |
 | [`inspeccion/`](inspeccion/) | 🔬 Métricas, resumen, diagnóstico y trayectoria del dataset (Fase 2) |
 | `__init__.py` | Documenta la capa |
 

@@ -33,7 +33,7 @@ Está organizado en **tres capas de Clean Architecture**, y la regla es una sola
    sustituir un adaptador.
 2. **Que el contrato no se disperse.** Front, backend y entrenamiento hablan del
    mismo formato porque hay **un** módulo que lo define.
-3. **Que se pueda probar sin GPU.** 325 de los 351 tests no necesitan torch.
+3. **Que se pueda probar sin GPU.** 353 de los 379 tests no necesitan torch.
 4. **Que el backend no cargue con el peso del entrenamiento.** El paquete
    funciona con solo `numpy`; torch y ONNX son extras opcionales.
 

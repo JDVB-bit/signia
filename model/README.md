@@ -21,7 +21,7 @@ prosa y [`contrato.json`](contrato.json) para las máquinas.
 | Elemento | Qué es |
 |---|---|
 | [`signia_modelo/`](signia_modelo/) | 📦 El paquete, en capas de Clean Architecture |
-| [`tests/`](tests/) | 🧪 Suite de pytest (351 tests) y fixtures de conformidad JS ↔ Python |
+| [`tests/`](tests/) | 🧪 Suite de pytest (379 tests) y fixtures de conformidad JS ↔ Python |
 | [`scripts/`](scripts/) | 🛠️ Utilidades de línea de comandos |
 | `contrato.md` | 📜 **Fuente de verdad**: formato de las muestras, remuestreo, tensor y features |
 | `contrato.json` | 🤖 Gemelo generado de `contrato.md`: las constantes que el front tiene que declarar igual |
@@ -132,7 +132,7 @@ python -m venv venv
 venv/Scripts/pip install -r requirements.txt
 
 # Tests
-venv/Scripts/python -m pytest                     # 351 tests
+venv/Scripts/python -m pytest                     # 379 tests
 venv/Scripts/python -m pytest -m "not torch"      # 138, sin torch (~3 s)
 
 # Regenerar los fixtures de conformidad JS <-> Python

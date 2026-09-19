@@ -2,12 +2,12 @@
 
 ## 📖 Introducción
 
-**351 tests** que cubren el paquete entero. La carpeta refleja las capas del
+**379 tests** que cubren el paquete entero. La carpeta refleja las capas del
 código: una subcarpeta por capa, más los dos tests que vigilan la frontera con
 el front (conformidad de tensores y contrato exportado) y los fixtures que
 comparten.
 
-325 de esos tests **no necesitan torch**: se pueden ejecutar en cualquier equipo
+353 de esos tests **no necesitan torch**: se pueden ejecutar en cualquier equipo
 en unos segundos.
 
 ---
@@ -17,8 +17,8 @@ en unos segundos.
 | Elemento | Qué es |
 |---|---|
 | [`dominio/`](dominio/) | 🎯 Entidades, vocabulario y criterios del dataset (49 tests) |
-| [`aplicacion/`](aplicacion/) | ⚙️ Remuestreo, tensor crudo e [inspección del dataset](aplicacion/inspeccion/) (101 tests) |
-| [`infra/`](infra/) | 🔌 JSON, ficheros, rutas, normalización, ONNX, informe y lienzo (145 tests) |
+| [`aplicacion/`](aplicacion/) | ⚙️ Remuestreo, tensor crudo, importación de lotes e [inspección del dataset](aplicacion/inspeccion/) (112 tests) |
+| [`infra/`](infra/) | 🔌 JSON, lotes, ficheros, rutas, normalización, ONNX, informe y lienzo (162 tests) |
 | [`fixtures/`](fixtures/) | 📎 Casos compartidos con el test de conformidad de JS |
 | `test_conformidad.py` | 🤝 Verifica que los fixtures siguen coincidiendo con el código (33 tests) |
 | `test_contrato_exportado.py` | 📜 Vigila `../contrato.json`: sincronía con `contrato.py` y coherencia entre constantes (23 tests) |
@@ -80,8 +80,8 @@ JSON sean legibles y exactos en `float32`.
 ### 🏷️ Marcadores para el hardware
 
 ```bash
-pytest                      # los 351
-pytest -m "not torch"       # los 325 que no necesitan torch
+pytest                      # los 379
+pytest -m "not torch"       # los 353 que no necesitan torch
 ```
 
 Los módulos que lo requieren usan `pytest.importorskip("torch")`, así que en un
@@ -145,8 +145,8 @@ Su pareja en el front es
 ## 💡 Ejemplos de uso
 
 ```bash
-venv/Scripts/python -m pytest                        # todo (351 tests)
-venv/Scripts/python -m pytest -m "not torch"         # sin torch (325)
+venv/Scripts/python -m pytest                        # todo (379 tests)
+venv/Scripts/python -m pytest -m "not torch"         # sin torch (353)
 venv/Scripts/python -m pytest tests/infra -k onnx    # un subconjunto
 venv/Scripts/python -m pytest -q --collect-only      # ver qué hay, sin ejecutar
 ```

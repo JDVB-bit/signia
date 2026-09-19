@@ -28,14 +28,35 @@ vídeo ──► ETAPA 1: reconocimiento ──► glosas ──► ETAPA 2: red
 | Carpeta | Qué es | Estado |
 |---|---|---|
 | [`front/`](front/) | Web en React: Inicio, Entrenamiento (captura de muestras) y Traductor | ✅ Captura funcionando |
-| [`model/`](model/) | Paquete Python: contrato, preprocesado, normalización ONNX y dataset | ✅ Fases 0 y 1 completas |
-| [`back/`](back/) | API FastAPI: muestras, modelos y redacción | 🕒 Pendiente (Fase 5) |
+| [`model/`](model/) | Paquete Python: contrato, preprocesado, normalización ONNX, dataset e inspector | ✅ Fases 0 y 1; Fase 2 en curso |
+| [`back/`](back/) | API FastAPI: muestras, modelos y redacción | 🟢 Recibe muestras (`POST /muestras`) |
 | [`.claude/`](.claude/) | Reglas del proyecto, plan de implementación y lista de mejoras | 📘 Documentación |
 
 | Archivo raíz | Para qué sirve |
 |---|---|
 | `README.md` | Este documento: puerta de entrada al proyecto |
 | `.gitignore` | Ignora dependencias, builds, entornos, logs y notas de borrador |
+
+---
+
+## 🔁 El bucle de captura, hoy
+
+```
+[Entrenamiento]  grabas la seña
+      │
+      ▼  "Enviar"
+  POST /muestras ──► valida el lote entero ──► model/data/crudo/...   ✅
+      │                                              │
+      │ (si el backend no responde)                  ▼
+      └─► descarga el JSON ─► scripts/importar_lote.py
+                                                inspeccionar.py  ✅ ¿ya se puede entrenar?
+                                                     │
+                                                     ▼  ⛔ falta train.py (Fase 4)
+                                             artefacto .onnx + métricas
+```
+
+Lo que falta para cerrar el reentrenamiento completo es el **entrenador**
+(`model/train.py`) y, encima de él, `POST /entrenamientos`.
 
 ---
 
@@ -62,7 +83,7 @@ Problemas técnicos concretos que resuelve el repositorio:
 |---|---|---|
 | Front | Node.js 24 LTS + pnpm 11 | React 19, Vite 8, Tailwind v4, MediaPipe |
 | Modelo | Python ≥ 3.12 | numpy (siempre); torch + ONNX solo para entrenar y exportar |
-| Backend | Python ≥ 3.12 | FastAPI, Pydantic, SQLAlchemy |
+| Backend | Python ≥ 3.12 | FastAPI, Pydantic, uvicorn y el paquete `model` instalado en editable |
 | Despliegue | Docker (opcional) | Front estático detrás de nginx |
 
 Cada carpeta declara las suyas: [`front/app/package.json`](front/app/package.json),
@@ -107,10 +128,10 @@ Detalle en [`.claude/claude.md`](.claude/claude.md) y [`.claude/rules.md`](.clau
 | `model/signia_modelo/dominio/` | Constantes del contrato, entidades inmutables y puertos |
 | `model/signia_modelo/aplicacion/` | Remuestreo y construcción del tensor |
 | `model/signia_modelo/infra/` | JSON, dataset en disco, normalización torch y ONNX |
-| `model/tests/` | 351 tests, incluidos los fixtures de conformidad |
+| `model/tests/` | 379 tests, incluidos los fixtures de conformidad |
 
-**Estado de los tests:** 138 en el front (Vitest) y 351 en el modelo (pytest;
-325 sin torch).
+**Estado de los tests:** 166 en el front (Vitest), 379 en el modelo (pytest;
+353 sin torch) y 26 en el backend (pytest + TestClient).
 
 ---
 

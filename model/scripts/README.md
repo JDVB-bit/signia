@@ -3,8 +3,9 @@
 ## 📖 Introducción
 
 Herramientas que se ejecutan a mano, fuera del paquete y fuera de los tests. Hoy
-son tres: dos **generan la referencia compartida** con el front (los tensores y
-las constantes) y una **informa del estado del dataset**.
+son cuatro: dos **generan la referencia compartida** con el front (los tensores
+y las constantes), una **mete lo grabado en el dataset** y otra **informa de su
+estado**.
 
 Según avance el plan, aquí vivirán también el baseline DTW (Fase 3) y los
 scripts de entrenamiento y exportación (Fase 4).
@@ -18,6 +19,7 @@ scripts de entrenamiento y exportación (Fase 4).
 | `generar_fixtures.py` | 🔁 Regenera `tests/fixtures/*.json`: las muestras límite y el tensor que produce Python |
 | `exportar_contrato.py` | 📜 Regenera `../contrato.json`: las constantes de `dominio/contrato.py` en formato legible por JS |
 | `inspeccionar.py` | 🔬 Informe del dataset crudo y dibujo de una trayectoria. Es la **puerta de la Fase 2** |
+| `importar_lote.py` | 📥 Mete en el dataset los ficheros que descarga el botón *Enviar* del front |
 
 ---
 
@@ -56,6 +58,8 @@ convocar a la gente.
 | `signia_modelo.infra.json_contrato` | `generar_fixtures` | Serializar la muestra al formato del contrato |
 | `tests.factorias` | `generar_fixtures` | La mano canónica |
 | `signia_modelo.aplicacion.inspeccion` | `inspeccionar` | Resumir, diagnosticar y sacar la trayectoria |
+| `signia_modelo.aplicacion.importacion_de_lote` | `importar_lote` | El caso de uso que tambien usa `POST /muestras` |
+| `signia_modelo.infra.json_lote` | `importar_lote` | Validar el sobre que descarga el front |
 | `signia_modelo.infra` | `inspeccionar` | Repositorio en disco, informe de texto y lienzo ASCII |
 
 Reutilizar las fábricas de los tests es deliberado: **la mano de referencia debe
@@ -109,6 +113,17 @@ Aparte va la lista `CLAVES_COMPARTIDAS_CON_JS`, que sí es explícita y comentad
 una por una: decir *qué constantes tiene que declarar también el front* es una
 decisión de diseño, no algo que se deduzca del código.
 
+### 🔁 El script y el endpoint son el mismo caso de uso
+
+`importar_lote.py` no reimplementa nada: llama a `muestras_desde_lote()` y a
+`importar_lote()`, que es exactamente lo que hace `POST /muestras` en el
+backend. Por eso importar a mano y pulsar *Enviar* no pueden acabar guardando
+cosas distintas.
+
+Valida **todos** los ficheros antes de escribir **ninguno**: importar a medias
+dejaria el dataset en un estado que nadie recuerda, y habria que ir a buscar
+cuales entraron.
+
 ### 🚪 El inspector es una puerta, no un visor
 
 `inspeccionar.py` **devuelve código de salida 1** si queda algún aviso
@@ -153,6 +168,20 @@ scripts.
 | `imprimir_informe(repo, etiqueta)` | Resume, diagnostica, imprime y dice si hay bloqueos |
 | `imprimir_trayectoria(repo, etiqueta, posicion, lado)` | Carga esa muestra y la dibuja |
 | `main()` | Orquesta y traduce `ErrorDeContrato` en un mensaje accionable |
+
+### `importar_lote.py`
+
+| Opcion | Que hace |
+|---|---|
+| `ficheros...` | Uno o varios lotes `.json` descargados del front |
+| `--datos RUTA` | Raiz del dataset (por defecto, `DATOS_DIR` o `./data`) |
+| `--seco` | Valida y cuenta, pero no escribe nada |
+
+| Funcion | Que hace |
+|---|---|
+| `leer_lote(ruta)` | Un fichero -> muestras ya validadas |
+| `leer_todos(rutas)` | Todas las muestras y todos los errores, antes de escribir |
+| `main()` | Importa e informa por etiqueta; devuelve 1 si algo era invalido |
 
 ### `exportar_contrato.py`
 
@@ -266,3 +295,34 @@ Trayectoria de la muneca derecha en 2026-09-20-snt-01-0004.json
 
 El gradiente de caracteres cuenta el tiempo (`.` primero, `@` último), así que
 se ve **hacia dónde** iba la mano y no solo la forma del trazo.
+
+### Importar lo grabado
+
+```bash
+venv/Scripts/python scripts/importar_lote.py ~/Descargas/signia-hola-2026-09-20-local.json
+```
+
+Salida:
+
+```
+Leyendo 1 fichero(s):
+  signia-hola-2026-09-20-local.json: 4 muestras
+
+Importadas 4 muestras en C:\...\model\data
+  hola: +3
+  reposo: +1
+
+Siguiente paso: python scripts/inspeccionar.py
+```
+
+Y si un fichero no cumple el contrato, no entra nada:
+
+```
+  ERROR malo.json: muestra 0 del lote: falta la lista 'frames'
+No se importo nada: corrige los ficheros invalidos.
+```
+
+> 💡 Con el backend levantado este paso sobra: el boton *Enviar* del front sube
+> el lote a `POST /muestras`, que ejecuta este mismo caso de uso. El script
+> sigue siendo util para los ficheros de respaldo que se descargan cuando el
+> backend no responde.

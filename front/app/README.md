@@ -84,7 +84,7 @@ presentacion ──► aplicacion ──► dominio
 ```
 
 **Regla de dependencia:** las capas internas (`dominio`, `aplicacion`) no
-importan nada de React, del DOM ni de MediaPipe. Por eso sus **138 tests** corren
+importan nada de React, del DOM ni de MediaPipe. Por eso sus **166 tests** corren
 en node en menos de un segundo. Detalle en [`src/README.md`](src/README.md).
 
 ### 🎨 Paleta de cinco colores
@@ -154,7 +154,7 @@ lo que evita el 404 al recargar en `/entrenamiento`.
 ```bash
 pnpm install       # instalar dependencias
 pnpm dev           # desarrollo → http://localhost:5173
-pnpm test          # 138 tests (Vitest, una pasada)
+pnpm test          # 166 tests (Vitest, una pasada)
 pnpm test:watch    # tests en modo vigilancia
 pnpm lint          # oxlint
 pnpm build         # build de producción → dist/
