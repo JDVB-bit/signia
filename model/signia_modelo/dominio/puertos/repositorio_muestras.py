@@ -15,6 +15,21 @@ class LectorMuestras(Protocol):
         """Recorre las muestras, opcionalmente filtradas por tipo o etiqueta."""
         ...
 
+    def etiquetas(self) -> list[str]:
+        """Clases presentes en el dataset, en orden estable.
+
+        Forma parte del puerto y no del adaptador porque "que senas hay" es
+        una pregunta del dominio: `n_clases` sale de aqui y nunca del codigo.
+        """
+        ...
+
+    def contar(self) -> dict[str, int]:
+        """Muestras por etiqueta. Recorrer el dataset entero para contarlo
+        seria caro en cuanto crezca, asi que cada adaptador lo resuelve como
+        pueda -en disco, contando ficheros; en una base de datos, con un
+        COUNT-."""
+        ...
+
 
 @runtime_checkable
 class EscritorMuestras(Protocol):
