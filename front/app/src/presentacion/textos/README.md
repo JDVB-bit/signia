@@ -14,6 +14,7 @@ frases en español que una persona entiende.
 |---|---|
 | `textosDeCaptura.js` | 📋 `TEXTO_POR_MOTIVO_DE_DESCARTE` y `AVISOS_DE_CAPTURA` |
 | `mensajeDeEstadoDeCaptura.js` | 🎚️ La función que decide **qué** frase ocupa la única línea de estado |
+| `textosDeEnvio.js` | 📤 Cómo se cuenta cada desenlace del envío (subido, respaldado, sin muestras) |
 | [`__tests__/`](__tests__/) | 🧪 Test de esa prioridad |
 
 ---
@@ -78,8 +79,9 @@ Lo urgente y puntual gana; lo permanente (la sesión) queda de fondo.
 |---|---|
 | `TEXTO_POR_MOTIVO_DE_DESCARTE` | `demasiado-corta` → *"La grabación fue demasiado corta: no se guardó nada."*<br>`sin-manos` → *"No se vio ninguna mano: la muestra se descartó."* |
 | `AVISOS_DE_CAPTURA.FALTA_ETIQUETA` | *"Escribe el nombre de la seña antes de grabar."* |
-| `AVISOS_DE_CAPTURA.SIN_MUESTRAS` | *"Todavía no hay muestras que enviar."* |
 | `AVISOS_DE_CAPTURA.PESTANA_OCULTA` | *"La grabación se descartó al salir de la pestaña."* |
+| `textoDeEnvio({resultado, cuantas, motivo})` | *"Se enviaron 4 muestras al servidor."* / *"El servidor no respondio (...). Se descargaron 4 muestras como respaldo."* |
+| `ENVIANDO` | Texto del botón mientras la petición está en marcha |
 
 Todos los mensajes explican **qué pasó y qué consecuencia tuvo**, no solo que
 algo falló.

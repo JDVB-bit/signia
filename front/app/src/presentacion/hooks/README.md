@@ -97,7 +97,8 @@ procesa dos veces el mismo frame.
 | `grabando`, `segundos` | Si hay grabación en curso y cuánto lleva |
 | `muestras`, `sesion` | Lote en memoria e id de la tanda |
 | `manosDetectadas`, `aviso` | Realimentación para el usuario |
-| `alternarGrabacion`, `borrarUltima`, `limpiar`, `exportar` | Acciones |
+| `alternarGrabacion`, `borrarUltima`, `limpiar`, `enviar` | Acciones |
+| `enviando` | `true` mientras la subida está en marcha (apaga el botón) |
 
 Si la cámara se apaga a mitad de una grabación, **aborta**: esa grabación ya no
 es válida.
@@ -143,7 +144,7 @@ const captura = useCapturaSenas({ videoRef, canvasRef, etiqueta: nombreSena, act
 <Button onClick={captura.alternarGrabacion} disabled={captura.estado !== ESTADOS_DETECTOR.LISTO}>
     {captura.grabando ? 'Detener' : 'Entrenar'}
 </Button>
-<Button onClick={() => captura.exportar()} disabled={captura.muestras.length === 0}>
+<Button onClick={() => captura.enviar()} disabled={captura.muestras.length === 0 || captura.enviando}>
     Enviar
 </Button>
 ```
@@ -154,5 +155,9 @@ const { oscuro, alternarTema } = useTema()
 useCerrarConEscape(abierto, cerrar)
 ```
 
-> 🧪 `exportar` acepta una función de descarga como parámetro
-> (`exportar(miDescarga)`), para poder verificarlo sin tocar el disco.
+> 🧪 `enviar` acepta la subida y la descarga como parámetros
+> (`enviar({ subir, descargar })`), para poder verificarlo sin red ni disco.
+>
+> 📤 `enviar` sube el lote a `POST /muestras`. Si el backend no responde,
+> descarga el mismo JSON de antes como respaldo y **no vacía el lote**: una
+> tanda de 40 muestras es media hora de trabajo.

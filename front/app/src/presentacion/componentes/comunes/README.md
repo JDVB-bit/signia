@@ -83,7 +83,7 @@ const ESTILOS_DESHABILITADO = 'cursor-not-allowed opacity-50'
     {grabando ? 'Detener' : 'Entrenar'}
 </Button>
 
-<Button variant="secondary" onClick={exportar} disabled={!hayMuestras}>
+<Button variant="secondary" onClick={enviar} disabled={!hayMuestras}>
     Enviar
 </Button>
 

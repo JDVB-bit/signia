@@ -10,6 +10,5 @@ export const TEXTO_POR_MOTIVO_DE_DESCARTE = {
 
 export const AVISOS_DE_CAPTURA = {
     FALTA_ETIQUETA: 'Escribe el nombre de la seña antes de grabar.',
-    SIN_MUESTRAS: 'Todavía no hay muestras que enviar.',
     PESTANA_OCULTA: 'La grabación se descartó al salir de la pestaña.',
 }

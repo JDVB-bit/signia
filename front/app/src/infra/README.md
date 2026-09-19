@@ -17,6 +17,7 @@ fichero, **solo se toca esta carpeta**.
 |---|---|---|
 | [`mediapipe/`](mediapipe/) | El detector de manos de Google → frames del contrato | `detectorDeManos.js`, `ladoDesdeCategoria.js`, `frameDesdeDeteccion.js` |
 | [`canvas/`](canvas/) | El dibujo del esqueleto sobre el vídeo | `dibujarManos.js`, `pintarManosSobreVideo.js` |
+| [`red/`](red/) | La API de SignIA: dónde está y cómo se le sube un lote | `urlDeLaApi.js`, `clienteDeMuestras.js` |
 | [`navegador/`](navegador/) | Cámara, almacenamiento, descargas y tema | `camara.js`, `almacenamientoSeguro.js`, `descargarJson.js`, `permisoDeCamara.js`, `preferenciaDeTema.js`, `registroDeIntro.js` |
 
 ---
@@ -38,7 +39,8 @@ fichero, **solo se toca esta carpeta**.
 |---|---|
 | `@mediapipe/tasks-vision` | Solo en `mediapipe/detectorDeManos.js` |
 | Assets de `public/mediapipe/` | Modelo `.task` y runtime WASM |
-| APIs del navegador | `navigator.mediaDevices`, `localStorage`, `sessionStorage`, `URL.createObjectURL`, `CanvasRenderingContext2D` |
+| APIs del navegador | `navigator.mediaDevices`, `localStorage`, `sessionStorage`, `URL.createObjectURL`, `CanvasRenderingContext2D`, `fetch` |
+| `VITE_API_URL` | Dónde vive el backend; por defecto, el local |
 | [`../dominio/`](../dominio/) | Constantes del contrato (landmarks, lados) |
 
 **No importa React**: los hooks que usan estos adaptadores viven en
